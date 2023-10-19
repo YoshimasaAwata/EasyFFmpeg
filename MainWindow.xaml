@@ -1,0 +1,126 @@
+﻿<mah:MetroWindow x:Class="EasyFFmpeg.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EasyFFmpeg"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="EasyFFmpeg" Height="450" Width="800" ShowCloseButton="False">
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button x:Name="AboutButton" Content="About" Click="AboutButton_Click"/>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+    <materialDesign:DialogHost>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="FromButton" Content="From : " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="FromButton_Click"/>
+                <TextBox x:Name="FromTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
+            </Grid>
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="ToButton" Content=" To :  " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
+                <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="拡張子 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox x:Name="ExtensionTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="ExtensionTextBox_TextChanged"/>
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="共通ファイル名 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox x:Name="FileNameTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="FileNameTextBox_TextChanged"/>
+            </Grid>
+            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
+                        <TextBlock Text="{Binding FromFile}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <ListBox x:Name="ToListBox" Grid.Row="1" Grid.Column="2" Margin="5,5,5,5" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#4C03A9F4" BorderBrush="#FF03A9F4" BorderThickness="1,1,1,1" Loaded="ToListBox_Loaded" SelectionChanged="ToListBox_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
+                        <TextBlock Text="{Binding ToFile}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Column="1" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                <Button x:Name="CopyButton" IsEnabled="False" Click="CopyButton_Click"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="ファイルを指定の名前でコピーします。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
+                        <TextBlock Text="Copy"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="UpButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="指定ファイルを上に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,5" Click="UpButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ArrowUpBoldBoxOutline" />
+                        <TextBlock Text=" Up "/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="DownButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="指定ファイルを下に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,10" Click="DownButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ArrowDownBoldBoxOutline" />
+                        <TextBlock Text="Down"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="DeleteButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="指定ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10" Click="DeleteButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
+                        <TextBlock Text="Delete"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <CheckBox x:Name="ExcludeCheck" Content="隠しファイル / システムファイル除外" Grid.Row="3" Margin="5,5,5,5" FlowDirection="RightToLeft" IsChecked="True"/>
+            <Button x:Name="CloseButton" Margin="0,5,5,5" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconVaadinIcons Kind="Exit" />
+                    <TextBlock Text="Exit"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </materialDesign:DialogHost>
+</mah:MetroWindow>
