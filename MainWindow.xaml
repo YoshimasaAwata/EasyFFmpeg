@@ -22,7 +22,6 @@
     <materialDesign:DialogHost>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -30,41 +29,49 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="FromButton" Content="From : " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="FromButton_Click"/>
-                <TextBox x:Name="FromTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
             </Grid>
-            <Grid Grid.Column="2">
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="ToButton" Content=" To :  " HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
-                <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True"/>
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="IndividualRadio" Content="Individual" IsChecked="True" GroupName="ij"/>
+                    <RadioButton x:Name="JoinRadio" Content="Join" GroupName="ij"/>
+                </StackPanel>
+                <Button x:Name="ToButton" Content=" To :  " Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
+                <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="2" Margin="5,5,5,5" IsReadOnly="True"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="3">
+                    <RadioButton x:Name="VideoRadio" Content="Video" IsChecked="True" GroupName="av"/>
+                    <RadioButton x:Name="AudioRadio" Content="Audio" GroupName="av"/>
+                </StackPanel>
             </Grid>
-            <Grid Grid.Row="2">
+            <Grid Grid.Column="1" Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Label Content="拡張子 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox x:Name="ExtensionTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="ExtensionTextBox_TextChanged"/>
+                <ComboBox x:Name="ExtensionComboBox" Grid.Column="1" Margin="5,5,5,5">
+                    <ComboBoxItem Content=".avi"/>
+                    <ComboBoxItem Content=".mkv"/>
+                    <ComboBoxItem Content=".mov"/>
+                    <ComboBoxItem Content=".mp4" IsSelected="True"/>
+                    <ComboBoxItem Content=".ogv"/>
+                    <ComboBoxItem Content=".ts"/>
+                    <ComboBoxItem Content=".webm"/>
+                </ComboBox>
             </Grid>
-            <Grid Grid.Row="2" Grid.Column="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Label Content="共通ファイル名 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox x:Name="FileNameTextBox" TextWrapping="Wrap" Grid.Column="1" Margin="5,5,5,5" TextChanged="FileNameTextBox_TextChanged"/>
-            </Grid>
-            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="1" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded">
+            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged" Loaded="FromListBox_Loaded">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
@@ -72,21 +79,21 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <ListBox x:Name="ToListBox" Grid.Row="1" Grid.Column="2" Margin="5,5,5,5" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#4C03A9F4" BorderBrush="#FF03A9F4" BorderThickness="1,1,1,1" Loaded="ToListBox_Loaded" SelectionChanged="ToListBox_SelectionChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
-                        <TextBlock Text="{Binding ToFile}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <StackPanel Grid.Column="1" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" >
-                <Button x:Name="CopyButton" IsEnabled="False" Click="CopyButton_Click"
+            <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" >
+                <Button x:Name="AddButton" Click="AddButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="ファイルを指定の名前でコピーします。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    ToolTip="ファイルを追加します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
-                        <TextBlock Text="Copy"/>
+                        <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
+                        <TextBlock Text="Add"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="DeleteButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="指定ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10" Click="DeleteButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
+                        <TextBlock Text="Delete"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="UpButton" IsEnabled="False"
@@ -105,17 +112,16 @@
                         <TextBlock Text="Down"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="DeleteButton" IsEnabled="False"
+                <Button x:Name="ConvButton" IsEnabled="False" Click="ConvButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="指定ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10" Click="DeleteButton_Click">
+                    ToolTip="ファイルを指定の名前で変換します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
-                        <TextBlock Text="Delete"/>
+                        <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
+                        <TextBlock Text="Conv"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <CheckBox x:Name="ExcludeCheck" Content="隠しファイル / システムファイル除外" Grid.Row="3" Margin="5,5,5,5" FlowDirection="RightToLeft" IsChecked="True"/>
-            <Button x:Name="CloseButton" Margin="0,5,5,5" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CloseButton_Click">
+            <Button x:Name="CloseButton" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Click="CloseButton_Click" VerticalAlignment="Center" Margin="0,5,0,5">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconVaadinIcons Kind="Exit" />
                     <TextBlock Text="Exit"/>

@@ -45,7 +45,7 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void FromButton_Click(object sender, RoutedEventArgs e)
+        private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
@@ -94,13 +94,13 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// 実際にファイルのコピーを行う
+        /// 実際にファイルの変換を行う
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void CopyButton_Click(object sender, RoutedEventArgs e)
+        private async void ConvButton_Click(object sender, RoutedEventArgs e)
         {
-            CopyButton.IsEnabled = false;
+            ConvButton.IsEnabled = false;
 
             var progress = new FileConversionProgress();
             var copyTask = fileList.CopyFiles(progress);
@@ -130,7 +130,7 @@ namespace EasyFFmpeg
                 }
             }
 
-            CopyButton.IsEnabled = true;
+            ConvButton.IsEnabled = true;
         }
 
         /// <summary>

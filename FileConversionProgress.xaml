@@ -12,7 +12,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,10,10,10">
                 <StackPanel Cursor="" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Label x:Name="FileNameLabel" Content="Label" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <Label Content="をコピーしています。" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Label Content="を変換しています。" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Cursor="" Orientation="Horizontal" HorizontalAlignment="Center">
                     <ProgressBar x:Name="CircleProgress" IsIndeterminate="True" Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" />

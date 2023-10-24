@@ -11,19 +11,19 @@ namespace EasyFFmpeg
 {
 
     /// <summary>
-    /// コピー元およびコピー先のファイル名のリストの管理</br>
-    /// 実際のファイルのコピーも行う
+    /// 変換元および変換先のファイル名のリストの管理</br>
+    /// 実際のファイルの変換も行う
     /// </summary>
     internal class FileList
     {
         /// <summary>
-        /// コピー元およびコピー先のファイル名の対
+        /// 変換元および変換先のファイル名の対
         /// </summary>
         public class FileNames
         {
-            /// <value>コピー元ファイル名</value>
+            /// <value>変換元ファイル名</value>
             public string FromFile { get; set; } = "";
-            /// <value>コピー先ファイル名</value>
+            /// <value>変換先ファイル名</value>
             public string ToFile { get; set; } = "";
         }
 
@@ -43,16 +43,16 @@ namespace EasyFFmpeg
         /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
         private static readonly char[] Delimiter = { ',', ' ', '.', ';', ':' };
 
-        /// <value>コピー元およびコピー先のファイル名のリスト</value>
+        /// <value>変換元および変換先のファイル名のリスト</value>
         public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
         /// <value>エラー等のメッセージ</value>
         public string Message { get; private set; } = "";
-        /// <value>ファイルのコピー先フォルダ名</value>
+        /// <value>ファイルの変換先フォルダ名</value>
         public string TargetDir { get; set; } = "";
-        /// <value>ファイルのコピー元フォルダ名</value>
+        /// <value>ファイルの変換元フォルダ名</value>
         public string SourceDir { get; private set; } = "";
         private string baseFileName = "new-file-name";
-        /// <value>コピー先ファイル名の共通部分</value>
+        /// <value>変換先ファイル名の共通部分</value>
         public string BaseFileName 
         { 
             get { return baseFileName; } 
@@ -64,7 +64,7 @@ namespace EasyFFmpeg
         }
         /// <value>フィルタリング用拡張子のリスト</value>
         private List<string>? extensions = null;
-        /// <value>ファイルコピーキャンセル用</value>
+        /// <value>ファイル変換キャンセル用</value>
         private CancellationTokenSource? tokenSource = null;
         /// <value>ロック用オブジェクト</value>
         private readonly object balanceLock = new object();
@@ -92,10 +92,10 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// ファイルのコピー元フォルダをセット</br>
-        /// 同時にコピーするファイル名をリストに登録
+        /// ファイルの変換元フォルダをセット</br>
+        /// 同時に変換するファイル名をリストに登録
         /// </summary>
-        /// <param name="dir">ファイルのコピー元フォルダ名</param>
+        /// <param name="dir">ファイルの変換元フォルダ名</param>
         /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
         public Code SetSourceDir(string dir, bool? exclude)
@@ -139,7 +139,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"内にセットしたコピー元ファイル名と"baseFileName"を元に連番を付加してコピー先ファイル名を作成
+        /// "FileNameList"内にセットした変換元ファイル名と"baseFileName"を元に連番を付加して変換先ファイル名を作成
         /// </summary>
         protected void MakeToFilesList()
         {
@@ -153,7 +153,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"にリストアップされたコピー元ファイル名とコピー先ファイル名、コピー先フォルダ名を使いファイルをコピー
+        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名、変換先フォルダ名を使いファイルを変換
         /// </summary>
         /// <param name="progress">プログレスバーダイアログ</param>
         /// <returns>処理結果</returns>
@@ -162,7 +162,7 @@ namespace EasyFFmpeg
             Code result = Code.OK;
             int fileCount = 0;
 
-            // コピー先フォルダの指定がない場合はコピー元フォルダにコピー
+            // 変換先フォルダの指定がない場合は変換元フォルダに変換
             var dir = (TargetDir == "") ? SourceDir : TargetDir;
 
             lock (balanceLock)
@@ -209,7 +209,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// コピー元ファイルのフィルタリング用拡張子のリストを作成</br>
+        /// 変換元ファイルのフィルタリング用拡張子のリストを作成</br>
         /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
         /// </summary>
         /// <param name="ext">拡張子を記述した文字列</param>
@@ -221,7 +221,7 @@ namespace EasyFFmpeg
 
         /// <summary>
         /// "FileNameList"から指定のインデックスの要素を削除</br>
-        /// 削除後にコピー先ファイル名を付けなおす
+        /// 削除後に変換先ファイル名を付けなおす
         /// </summary>
         /// <param name="index">削除する要素のインデックス</param>
         public void DeleteElement(Int32 index)
@@ -235,7 +235,7 @@ namespace EasyFFmpeg
 
         /// <summary>
         /// "FileNameList"の指定のインデックスの要素を上に移動</br>
-        /// 移動後にコピー先ファイル名を付けなおす
+        /// 移動後に変換先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
         /// 先頭の要素は移動できないので何もしない
@@ -252,7 +252,7 @@ namespace EasyFFmpeg
 
         /// <summary>
         /// "FileNameList"の指定のインデックスの要素を下に移動</br>
-        /// 移動後にコピー先ファイル名を付けなおす
+        /// 移動後に変換先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
         /// 最後の要素は移動できないので何もしない
@@ -268,7 +268,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// ファイルのコピーを中断
+        /// ファイルの変換を中断
         /// </summary>
         public void CancelCopy()
         {

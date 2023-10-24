@@ -44,7 +44,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Label Content="詳細: "/>
-                <TextBlock TextWrapping="Wrap" Grid.Column="1"><Run Text="指定したフォルダ内のファイルをコピーします。"/><LineBreak/><Run Text="コピーする際のファイル名は&quot;指定のファイル名+連番.拡張子&quot;となります。"/><LineBreak/><Run Text="コピー先のフォルダは選択できます。"/><LineBreak/><Run Text="コピー先のフォルダを指定しない場合、コピー元のフォルダにコピーします。"/></TextBlock>
+                <TextBlock TextWrapping="Wrap" Grid.Column="1"><Run Text="指定したファイルを変換します。"/><LineBreak/><Run Text="変換後のファイル名は&quot;元のファイル名.拡張子&quot;となります。"/><LineBreak/><Run Text="結合時のファイル名は&quot;最初のファイル名.拡張子&quot;となります。"/><LineBreak/><Run Text="変換先のフォルダは選択できます。"/><LineBreak/><Run Text="変換先のフォルダを指定しない場合、変換元のフォルダにコピーします。"/></TextBlock>
                 <TextBlock Text="バージョン : 1.0.0" Grid.Row="1" MinWidth="3" Grid.ColumnSpan="2"/>
                 <TextBlock Text="ライセンス : MIT" Grid.Row="2" Grid.ColumnSpan="2"/>
                 <TextBlock Text="Copyright (c) 2023 Yoshimasa Awata" Grid.Row="3" Grid.ColumnSpan="2"/>
