@@ -12,7 +12,7 @@ namespace EasyFFmpeg
 {
 
     /// <summary>
-    /// 変換元および変換先のファイル名のリストの管理</br>
+    /// 変換元および変換先のファイル名のリストの管理<br/>
     /// 実際のファイルの変換も行う
     /// </summary>
     internal class FileList
@@ -67,7 +67,7 @@ namespace EasyFFmpeg
         public bool Join { get; set; } = false;
 
         /// <summary>
-        /// ファイルの変換元フォルダをセット</br>
+        /// ファイルの変換元フォルダをセット<br/>
         /// 同時に変換するファイル名をリストに登録
         /// </summary>
         /// <param name="dir">ファイルの変換元フォルダ名</param>
@@ -121,6 +121,60 @@ namespace EasyFFmpeg
         /// <summary>
         /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
         /// </summary>
+        /// <remarks>
+        /// 変換元ファイルは結合される
+        /// </remarks>
+        /// <param name="progress">プログレスバーダイアログ</param>
+        /// <returns>処理結果</returns>
+        public async Task<Code> JoinFiles(FileConversionProgress progress)
+        {
+            Code result = Code.OK;
+
+            lock (balanceLock)
+            {
+                tokenSource = new CancellationTokenSource();
+            }
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffmpeg";
+            info.Arguments = $"-i ";
+
+            foreach (var file in FileNameList)
+            {
+                info.Arguments += file.ToString() + " ";
+            }
+
+            info.Arguments += FileNameList[0].ToString();
+
+            try
+            {
+                var ffmpeg = Process.Start(info);
+                if (ffmpeg != null)
+                {
+                    await ffmpeg.WaitForExitAsync(tokenSource.Token);
+                }
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+                result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
+            }
+
+            lock (balanceLock)
+            {
+                tokenSource.Dispose();
+                tokenSource = null;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
+        /// </summary>
+        /// <remarks>
+        /// 変換元ファイルは個別に変換される
+        /// </remarks>
         /// <param name="progress">プログレスバーダイアログ</param>
         /// <returns>処理結果</returns>
         public async Task<Code> ConvertFiles(FileConversionProgress progress)
@@ -146,7 +200,7 @@ namespace EasyFFmpeg
                     var ffmpeg = Process.Start(info);
                     if (ffmpeg != null)
                     {
-                        ffmpeg.WaitForExit();
+                        await ffmpeg.WaitForExitAsync(tokenSource.Token);
                     }
                 }
                 catch (Exception e)
@@ -167,7 +221,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"から指定のインデックスの要素を削除</br>
+        /// "FileNameList"から指定のインデックスの要素を削除<br/>
         /// 削除後に変換先ファイル名を付けなおす
         /// </summary>
         /// <param name="index">削除する要素のインデックス</param>
@@ -181,7 +235,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"の指定のインデックスの要素を上に移動</br>
+        /// "FileNameList"の指定のインデックスの要素を上に移動<br/>
         /// 移動後に変換先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
@@ -198,7 +252,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"の指定のインデックスの要素を下に移動</br>
+        /// "FileNameList"の指定のインデックスの要素を下に移動<br/>
         /// 移動後に変換先ファイル名を付けなおす
         /// </summary>
         /// <remarks>
@@ -215,9 +269,76 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// 指定のインデックスのファイルを再生する
+        /// </summary>
+        /// <param name="index">移動する要素のインデックス</param>
+        /// <returns>処理結果</returns>
+        public async Task<Code> PlayFile(Int32 index)
+        {
+            Code result = Code.OK;
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffplay";
+            info.Arguments = FileNameList[index].ToString();
+
+            try
+            {
+                var ffplay = Process.Start(info);
+                if (ffplay != null)
+                {
+                    ffplay.WaitForExit();
+                }
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+                result = Code.NG;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 指定のインデックスのファイルの情報を得る
+        /// </summary>
+        /// <param name="index">移動する要素のインデックス</param>
+        /// <returns>
+        /// ファイルの情報</br>
+        /// 取得失敗の場合にはnull
+        /// </returns>
+        public async Task<String?> GetFileInfo(Int32 index)
+        {
+            String fileInfo = "";
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffprobe";
+            info.Arguments = FileNameList[index].ToString();
+            info.RedirectStandardOutput = true;
+            info.UseShellExecute = false;
+            info.CreateNoWindow = true;
+
+            try
+            {
+                var ffprobe = Process.Start(info);
+                if (ffprobe != null)
+                {
+                    fileInfo = ffprobe.StandardOutput.ReadToEnd();
+                    ffprobe.WaitForExit();
+                }
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+                return null;
+            }
+
+            return fileInfo;
+        }
+
+        /// <summary>
         /// ファイルの変換を中断
         /// </summary>
-        public void CancelCopy()
+        public void CancelConvert()
         {
             lock (balanceLock)
             {

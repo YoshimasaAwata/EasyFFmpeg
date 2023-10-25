@@ -162,7 +162,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// コピー元ファイルのフィルタリング用拡張子のリストを作成</br>
+        /// コピー元ファイルのフィルタリング用拡張子のリストを作成<br/>
         /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
         /// </summary>
         /// <param name="sender"></param>
@@ -173,7 +173,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う</br>
+        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う<br/>
         /// 更に"ToListBox"の選択を"FromListBox"に反映
         /// </summary>
         /// <param name="sender"></param>
@@ -210,7 +210,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"から選択したリストアイテムを削除</br>
+        /// "FromListBox"から選択したリストアイテムを削除<br/>
         /// 削除後にコピー先ファイル名を付けなおし、リスト表示をアップデート
         /// </summary>
         /// <param name="sender"></param>
@@ -224,7 +224,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"から選択したリストアイテムを上に移動</br>
+        /// "FromListBox"から選択したリストアイテムを上に移動<br/>
         /// 移動後にコピー先ファイル名を付けなおし、リスト表示をアップデート
         /// </summary>
         /// <remarks>
@@ -244,7 +244,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"から選択したリストアイテムを下に移動</br>
+        /// "FromListBox"から選択したリストアイテムを下に移動<br/>
         /// 移動後にコピー先ファイル名を付けなおし、リスト表示をアップデート
         /// </summary>
         /// <remarks>
@@ -288,7 +288,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"内のScrollViewerがスクロールした際のイベントハンドラ</br>
+        /// "FromListBox"内のScrollViewerがスクロールした際のイベントハンドラ<br/>
         /// "FromListBox"のスクロール量を"ToListBox"に反映
         /// </summary>
         /// <param name="sender"></param>
@@ -302,7 +302,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "ToListBox"内のScrollViewerがスクロールした際のイベントハンドラ</br>
+        /// "ToListBox"内のScrollViewerがスクロールした際のイベントハンドラ<br/>
         /// "ToListBox"のスクロール量を"FromListBox"に反映
         /// </summary>
         /// <param name="sender"></param>
@@ -316,7 +316,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"の描画終了時のイベントハンドラ</br>
+        /// "FromListBox"の描画終了時のイベントハンドラ<br/>
         /// "FromListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
         /// </summary>
         /// <param name="sender"></param>
@@ -331,7 +331,7 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "ToListBox"の描画終了時のイベントハンドラ</br>
+        /// "ToListBox"の描画終了時のイベントハンドラ<br/>
         /// "ToListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
         /// </summary>
         /// <param name="sender"></param>
