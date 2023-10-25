@@ -28,16 +28,12 @@ namespace EasyFFmpeg
         private FileList fileList = new FileList();
         /// <value>Fromリストボックス内のScrollViewer</value>
         private ScrollViewer? fromScrollViewer;
-        /// <value>Toリストボックス内のScrollViewer</value>
-        private ScrollViewer? toScrollViewer;
 
         public MainWindow()
         {
             InitializeComponent();
 
             FromListBox.ItemsSource = fileList.FileNameList;
-            ToListBox.ItemsSource = fileList.FileNameList;
-            FileNameTextBox.Text = fileList.BaseFileName;
         }
 
         /// <summary>

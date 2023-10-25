@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,93 +41,55 @@ namespace EasyFFmpeg
             Cancel,
         }
 
-        /// <value>フィルタリング用拡張子を複数指定する際の区切り文字</value>
-        private static readonly char[] Delimiter = { ',', ' ', '.', ';', ':' };
-
         /// <value>変換元および変換先のファイル名のリスト</value>
         public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
         /// <value>エラー等のメッセージ</value>
         public string Message { get; private set; } = "";
         /// <value>ファイルの変換先フォルダ名</value>
         public string TargetDir { get; set; } = "";
-        /// <value>ファイルの変換元フォルダ名</value>
-        public string SourceDir { get; private set; } = "";
-        private string baseFileName = "new-file-name";
-        /// <value>変換先ファイル名の共通部分</value>
-        public string BaseFileName 
-        { 
-            get { return baseFileName; } 
-            set 
-            { 
-                baseFileName = value;
-                this.MakeToFilesList();     // 変更の度にファイル名リストを更新
-            } 
-        }
-        /// <value>フィルタリング用拡張子のリスト</value>
-        private List<string>? extensions = null;
         /// <value>ファイル変換キャンセル用</value>
         private CancellationTokenSource? tokenSource = null;
+        /// <value>オーディオターゲットかどうか</value>
+        public bool AudioTarget { get; set; } = false;
         /// <value>ロック用オブジェクト</value>
         private readonly object balanceLock = new object();
-
-        /// <summary>
-        /// 指定のファイル名を"FileNameList"に追加</br>
-        /// 指定により隠しファイルやシステムファイルは除外する
-        /// </summary>
-        /// <param name="file">追加するファイル名</param>
-        /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
-        protected void AddFromFile(string file, bool? exclude)
-        {
-            if (exclude == false)
-            {
-                FileNameList.Add(new FileNames() { FromFile = file });
-            }
-            else    // exclude == null or true
-            {
-                var attr = File.GetAttributes(file);
-                if ((attr & (FileAttributes.Hidden | FileAttributes.System)) == 0)
-                {
-                    FileNameList.Add(new FileNames() { FromFile = file });
-                }
-            }
-        }
+        /// <value>入力ビデオファイルの拡張子</value>
+        protected readonly List<string> video_extensions = new List<string>() {
+            ".asf", ".avi", "swf", "flv", ".mkv", ".mov", ".mp4", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
+        };
+        /// <value>入力オーディオファイルの拡張子</value>
+        protected readonly List<string> audio_extensions = new List<string>() {
+            ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".als", ".pcm", ".qcp", ".ra", ".oga", "wma"
+        };
+        /// <value>変換先拡張子</value>
+        public string Extension { get; set; } = ".mp4";
+        /// <value>変換時に結合するかどうか</value>
+        public bool Join { get; set; } = false;
 
         /// <summary>
         /// ファイルの変換元フォルダをセット</br>
         /// 同時に変換するファイル名をリストに登録
         /// </summary>
         /// <param name="dir">ファイルの変換元フォルダ名</param>
-        /// <param name="exclude">隠しファイルやシステムファイルを除外するかどうか</param>
         /// <returns>処理結果</returns>
-        public Code SetSourceDir(string dir, bool? exclude)
+        public Code SetSourceDir(string dir)
         {
             Code result = Code.OK;
 
             try
             {
                 var files = Directory.GetFiles(dir);
-                SourceDir = dir;
                 FileNameList.Clear();
 
-                if ((extensions != null) && (extensions.Count > 0))
+                foreach (var file in files)
                 {
-                    foreach (var file in files)
+                    var ext = Path.GetExtension(file); // 最初の'.'を含む
+                    if (video_extensions.Contains(ext) || (AudioTarget && audio_extensions.Contains(ext)))
                     {
-                        var ext = Path.GetExtension(file).Substring(1); // 最初の'.'を除く
-                        if (extensions.Contains(ext))
-                        {
-                            AddFromFile(file, exclude);
-                        }
+                        FileNameList.Add(new FileNames() { FromFile = file });
                     }
                 }
-                else
-                {
-                    foreach (var file in files)
-                    {
-                        AddFromFile(file, exclude);
-                    }
-                }
-
+ 
                 this.MakeToFilesList();
             }
             catch (Exception e)
@@ -139,31 +102,31 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FileNameList"内にセットした変換元ファイル名と"baseFileName"を元に連番を付加して変換先ファイル名を作成
+        /// "FileNameList"内にセットした変換元ファイル名と拡張子を元に変換先ファイル名を作成
         /// </summary>
         protected void MakeToFilesList()
         {
-            int num = 0;
             foreach (var file in FileNameList)
             {
-                var ext = Path.GetExtension(file.FromFile);
-                var newFileName = $"{baseFileName}{num++:d3}{ext}";
-                file.ToFile = newFileName;
+                var name = Path.GetFileNameWithoutExtension(file.FromFile);
+                var path = Path.GetDirectoryName(file.FromFile);
+                if (path != TargetDir)
+                {
+                    path = TargetDir;
+                }
+                file.ToFile = $"{path}\\{name}{Extension}";
             }
         }
 
         /// <summary>
-        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名、変換先フォルダ名を使いファイルを変換
+        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
         /// </summary>
         /// <param name="progress">プログレスバーダイアログ</param>
         /// <returns>処理結果</returns>
-        public async Task<Code> CopyFiles(FileConversionProgress progress)
+        public async Task<Code> ConvertFiles(FileConversionProgress progress)
         {
             Code result = Code.OK;
             int fileCount = 0;
-
-            // 変換先フォルダの指定がない場合は変換元フォルダに変換
-            var dir = (TargetDir == "") ? SourceDir : TargetDir;
 
             lock (balanceLock)
             {
@@ -172,24 +135,19 @@ namespace EasyFFmpeg
 
             foreach (var file in FileNameList)
             {
-                var targetFileName = Path.Join(dir, file.ToFile);
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.FileName = "ffmpeg";
+                info.Arguments = $"-i {file.FromFile} {file.ToFile}";
 
                 progress.SetFileNameProgress(Path.GetFileName(file.FromFile), (++fileCount * 100 / FileNameList.Count));
 
                 try
                 {
-                    using (var source = File.OpenRead(file.FromFile))
+                    var ffmpeg = Process.Start(info);
+                    if (ffmpeg != null)
                     {
-                        using (var target = File.Open(targetFileName, FileMode.CreateNew))
-                        {
-                            await source.CopyToAsync(target, tokenSource.Token).ConfigureAwait(false);
-                        }
+                        ffmpeg.WaitForExit();
                     }
-                }
-                catch (IOException)
-                {
-                    // ファイルが既に存在する等のエラーはそのまま続行する
-                    continue;
                 }
                 catch (Exception e)
                 {
@@ -206,17 +164,6 @@ namespace EasyFFmpeg
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// 変換元ファイルのフィルタリング用拡張子のリストを作成</br>
-        /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
-        /// </summary>
-        /// <param name="ext">拡張子を記述した文字列</param>
-        public void SetExtensions(string ext)
-        {
-            var extList = ext.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            extensions = (extList.Length > 0) ? new List<string>(extList) : null;
         }
 
         /// <summary>

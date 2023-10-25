@@ -66,7 +66,7 @@
                     <ComboBoxItem Content=".mkv"/>
                     <ComboBoxItem Content=".mov"/>
                     <ComboBoxItem Content=".mp4" IsSelected="True"/>
-                    <ComboBoxItem Content=".ogv"/>
+                    <ComboBoxItem Content=".ogx"/>
                     <ComboBoxItem Content=".ts"/>
                     <ComboBoxItem Content=".webm"/>
                 </ComboBox>
@@ -118,6 +118,22 @@
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
                         <TextBlock Text="Conv"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="PlayButton" IsEnabled="False" Click="PlayButton_Click"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="ファイルを再生します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="PlayBoxMultipleOutline" />
+                        <TextBlock Text="Play"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="InfoButton" IsEnabled="False" Click="InfoButton_Click"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="ファイルの情報を表示します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="InformationOutline" />
+                        <TextBlock Text="Info"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
