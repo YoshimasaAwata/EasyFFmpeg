@@ -83,7 +83,7 @@
             <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <Button x:Name="AddButton" Click="AddButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="ファイルを追加します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    ToolTip="ファイルを追加します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentPlusOutline" />
                         <TextBlock Text="Add"/>
@@ -91,7 +91,7 @@
                 </Button>
                 <Button x:Name="DeleteButton" IsEnabled="False"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="指定ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10" Click="DeleteButton_Click">
+                    ToolTip="指定ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5" Click="DeleteButton_Click">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
                         <TextBlock Text="Delete"/>
@@ -99,7 +99,7 @@
                 </Button>
                 <Button x:Name="UpButton" IsEnabled="False"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="指定ファイルを上に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,5" Click="UpButton_Click">
+                    ToolTip="指定ファイルを上に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,0" Click="UpButton_Click">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ArrowUpBoldBoxOutline" />
                         <TextBlock Text=" Up "/>
@@ -107,7 +107,7 @@
                 </Button>
                 <Button x:Name="DownButton" IsEnabled="False"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="指定ファイルを下に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,10" Click="DownButton_Click">
+                    ToolTip="指定ファイルを下に移動します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5" Click="DownButton_Click">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ArrowDownBoldBoxOutline" />
                         <TextBlock Text="Down"/>
@@ -115,7 +115,7 @@
                 </Button>
                 <Button x:Name="ConvButton" IsEnabled="False" Click="ConvButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="ファイルを指定の名前で変換します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    ToolTip="ファイルを指定の名前で変換します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentArrowRightOutline" />
                         <TextBlock Text="Conv"/>
@@ -131,7 +131,7 @@
                 </Button>
                 <Button x:Name="InfoButton" IsEnabled="False" Click="InfoButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"
-                    ToolTip="ファイルの情報を表示します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,10,0,10">
+                    ToolTip="ファイルの情報を表示します。" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="InformationOutline" />
                         <TextBlock Text="Info"/>

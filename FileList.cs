@@ -109,6 +109,7 @@ namespace EasyFFmpeg
         {
             Code result = Code.OK;
 
+            Message = "";
             MakeToFilesList();
 
             lock (balanceLock)
@@ -163,6 +164,7 @@ namespace EasyFFmpeg
             Code result = Code.OK;
             int fileCount = 0;
 
+            Message = "";
             MakeToFilesList();
 
             lock (balanceLock)
@@ -257,6 +259,8 @@ namespace EasyFFmpeg
         {
             Code result = Code.OK;
 
+            Message = "";
+
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffplay";
             info.Arguments = FileNameList[index].ToString();
@@ -290,10 +294,12 @@ namespace EasyFFmpeg
         {
             String fileInfo = "";
 
+            Message = "";
+
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffprobe";
-            info.Arguments = "-hide_banner " + FileNameList[index].ToString();
-            info.RedirectStandardOutput = true;
+            info.Arguments = $"-hide_banner \"{FileNameList[index]?.FromFile}\"";
+            info.RedirectStandardError = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
 
@@ -302,7 +308,7 @@ namespace EasyFFmpeg
                 var ffprobe = Process.Start(info);
                 if (ffprobe != null)
                 {
-                    fileInfo = ffprobe.StandardOutput.ReadToEnd();
+                    fileInfo = ffprobe.StandardError.ReadToEnd();
                     await ffprobe.WaitForExitAsync();
                 }
             }

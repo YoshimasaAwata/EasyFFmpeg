@@ -288,14 +288,15 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private async void InfoButton_Click(object sender, RoutedEventArgs e)
         {
-            var info = fileList.GetFileInfo(FromListBox.SelectedIndex);
-            if ((info.Result == null) || (info.Result ==""))
+            var info = await fileList.GetFileInfo(FromListBox.SelectedIndex);
+            if ((info == null) || (info ==""))
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
             }
             else
             {
-                // ここに情報を表示するコードを追加
+                var infoBox = new InfoBox(info);
+                infoBox.ShowDialog();
             }
         }
     }
