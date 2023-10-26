@@ -55,11 +55,11 @@ namespace EasyFFmpeg
         private readonly object balanceLock = new object();
         /// <value>入力ビデオファイルの拡張子</value>
         protected readonly List<string> video_extensions = new List<string>() {
-            ".asf", ".avi", "swf", "flv", ".mkv", ".mov", ".mp4", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
+            ".asf", ".avi", ".swf", ".flv", ".mkv", ".mov", ".mp4", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
         };
         /// <value>入力オーディオファイルの拡張子</value>
         protected readonly List<string> audio_extensions = new List<string>() {
-            ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".als", ".pcm", ".qcp", ".ra", ".oga", "wma"
+            ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
         };
         /// <value>変換先拡張子</value>
         public string Extension { get; set; } = ".mp4";
@@ -67,38 +67,21 @@ namespace EasyFFmpeg
         public bool Join { get; set; } = false;
 
         /// <summary>
-        /// ファイルの変換元フォルダをセット<br/>
-        /// 同時に変換するファイル名をリストに登録
+        /// 変換元ファイルをセット
         /// </summary>
-        /// <param name="dir">ファイルの変換元フォルダ名</param>
-        /// <returns>処理結果</returns>
-        public Code SetSourceDir(string dir)
+        /// <param name="files">変換元ファイル名</param>
+        public void SetSourceDir(IEnumerable<string> files)
         {
-            Code result = Code.OK;
+            FileNameList.Clear();
 
-            try
+            foreach (var file in files)
             {
-                var files = Directory.GetFiles(dir);
-                FileNameList.Clear();
-
-                foreach (var file in files)
+                var ext = Path.GetExtension(file); // 最初の'.'を含む
+                if (video_extensions.Contains(ext) || (AudioTarget && audio_extensions.Contains(ext)))
                 {
-                    var ext = Path.GetExtension(file); // 最初の'.'を含む
-                    if (video_extensions.Contains(ext) || (AudioTarget && audio_extensions.Contains(ext)))
-                    {
-                        FileNameList.Add(new FileNames() { FromFile = file });
-                    }
+                    FileNameList.Add(new FileNames() { FromFile = file });
                 }
- 
-                this.MakeToFilesList();
             }
-            catch (Exception e)
-            {
-                Message = e.Message;
-                result = Code.NG;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -109,11 +92,7 @@ namespace EasyFFmpeg
             foreach (var file in FileNameList)
             {
                 var name = Path.GetFileNameWithoutExtension(file.FromFile);
-                var path = Path.GetDirectoryName(file.FromFile);
-                if (path != TargetDir)
-                {
-                    path = TargetDir;
-                }
+                var path = (TargetDir == "") ? Path.GetDirectoryName(file.FromFile) : TargetDir;
                 file.ToFile = $"{path}\\{name}{Extension}";
             }
         }
@@ -129,6 +108,8 @@ namespace EasyFFmpeg
         public async Task<Code> JoinFiles(FileConversionProgress progress)
         {
             Code result = Code.OK;
+
+            MakeToFilesList();
 
             lock (balanceLock)
             {
@@ -182,6 +163,8 @@ namespace EasyFFmpeg
             Code result = Code.OK;
             int fileCount = 0;
 
+            MakeToFilesList();
+
             lock (balanceLock)
             {
                 tokenSource = new CancellationTokenSource();
@@ -230,7 +213,6 @@ namespace EasyFFmpeg
             if ((index >= 0) && (index < FileNameList.Count))
             {
                 FileNameList.RemoveAt(index);
-                MakeToFilesList();
             }
         }
 
@@ -247,7 +229,6 @@ namespace EasyFFmpeg
             if ((index > 0) && (index < FileNameList.Count))
             {
                 FileNameList.Move(index, (index - 1));
-                MakeToFilesList();
             }
         }
 
@@ -264,7 +245,6 @@ namespace EasyFFmpeg
             if ((index >= 0) && (index < (FileNameList.Count - 1)))
             {
                 FileNameList.Move(index, (index + 1));
-                MakeToFilesList();
             }
         }
 
@@ -286,7 +266,7 @@ namespace EasyFFmpeg
                 var ffplay = Process.Start(info);
                 if (ffplay != null)
                 {
-                    ffplay.WaitForExit();
+                    await ffplay.WaitForExitAsync();
                 }
             }
             catch (Exception e)
@@ -312,7 +292,7 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffprobe";
-            info.Arguments = FileNameList[index].ToString();
+            info.Arguments = "-hide_banner " + FileNameList[index].ToString();
             info.RedirectStandardOutput = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
@@ -323,7 +303,7 @@ namespace EasyFFmpeg
                 if (ffprobe != null)
                 {
                     fileInfo = ffprobe.StandardOutput.ReadToEnd();
-                    ffprobe.WaitForExit();
+                    await ffprobe.WaitForExitAsync();
                 }
             }
             catch (Exception e)

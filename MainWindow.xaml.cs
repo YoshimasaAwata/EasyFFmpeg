@@ -26,8 +26,6 @@ namespace EasyFFmpeg
     {
         /// <value>リストボックスに表示するファイル名のリスト</value>
         private FileList fileList = new FileList();
-        /// <value>Fromリストボックス内のScrollViewer</value>
-        private ScrollViewer? fromScrollViewer;
 
         public MainWindow()
         {
@@ -37,38 +35,36 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// ファイル選択ダイアログボックスを表示してコピー元フォルダを選択
+        /// ファイル選択ダイアログボックスを表示して変換元ファイルを選択
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void AddButton_Click(object sender, RoutedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             using (var openFolderDialog = new CommonOpenFileDialog()
             {
-                Title = "コピー元フォルダを選択してください",
-                IsFolderPicker = true,
+                Title = "変換元ファイルを選択してください",
+                Multiselect = true,
             })
             {
+                openFolderDialog.Filters.Add(new CommonFileDialogFilter("Video", "*.asf, *.avi, *.swf, *.flv, *.mkv, *.mov, *.mp4, *.ogv, *.ogg, *.ogx, *.ts, *.webm"));
+                if (AudioRadio.IsChecked == true)
+                {
+                    openFolderDialog.Filters.Add(new CommonFileDialogFilter("Audio", "*.aac, *.ac3, *.adpcm, *.amr, *.alac, *.fla, *.flac, *.mp1, *.mp2, *.mp3, *.als, *.pcm, *.qcp, *.ra, *.oga, *.wma"));
+                }
+
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    var sourceDir = openFolderDialog.FileName;
-                    var rc = fileList.SetSourceDir(sourceDir, ExcludeCheck.IsChecked);
-                    if (rc == FileList.Code.NG)
-                    {
-                        await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
-                    }
-                    else
-                    {
-                        FromTextBox.Text = sourceDir;
-                        // コピーするファイルがない場合もCopyボタンは無効
-                        CopyButton.IsEnabled = ((rc == FileList.Code.OK) && (fileList.FileNameList.Count > 0));
-                    }
+                    var sourceDir = openFolderDialog.FileNames;
+                    fileList.SetSourceDir(openFolderDialog.FileNames);
+                    // コピーするファイルがない場合はCopyボタンは無効
+                    ConvButton.IsEnabled = (fileList.FileNameList.Count > 0);
                 }
             }
         }
 
         /// <summary>
-        /// ファイル選択ダイアログボックスを表示してコピー先フォルダを選択
+        /// ファイル選択ダイアログボックスを表示して変換先フォルダを選択
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -90,6 +86,17 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// 変換先フォルダをクリア
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToTextBox.Clear();
+            fileList.TargetDir = "";
+        }
+
+        /// <summary>
         /// 実際にファイルの変換を行う
         /// </summary>
         /// <param name="sender"></param>
@@ -99,15 +106,15 @@ namespace EasyFFmpeg
             ConvButton.IsEnabled = false;
 
             var progress = new FileConversionProgress();
-            var copyTask = fileList.CopyFiles(progress);
+            var convertTask = (IndividualRadio.IsChecked == true) ? fileList.ConvertFiles(progress) : fileList.JoinFiles(progress);
             var progressTask = DialogHost.Show(progress);
 
-            var taskDone = await Task.WhenAny(copyTask, progressTask);
+            var taskDone = await Task.WhenAny(convertTask, progressTask);
 
             if (taskDone == progressTask)
             {
-                fileList.CancelCopy();
-                await copyTask;
+                fileList.CancelConvert();
+                await convertTask;
                 await DialogHost.Show(new ErrorDialog("キャンセルされました。", ErrorDialog.Type.Warning));
             }
             else
@@ -115,14 +122,14 @@ namespace EasyFFmpeg
                 DialogHost.Close(null);
                 await progressTask;
 
-                var rc = copyTask.Result;
+                var rc = convertTask.Result;
                 if (rc == FileList.Code.NG)
                 {
                     await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
                 }
                 else
                 {
-                    await DialogHost.Show(new ErrorDialog("コピーしました。", ErrorDialog.Type.Info));
+                    await DialogHost.Show(new ErrorDialog("変換しました。", ErrorDialog.Type.Info));
                 }
             }
 
@@ -140,17 +147,6 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// 共通ファイル名をアップデートする
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            fileList.BaseFileName = FileNameTextBox.Text;
-            ToListBox.Items.Refresh();
-        }
-
-        /// <summary>
         /// AboutBoxを表示
         /// </summary>
         /// <param name="sender"></param>
@@ -162,19 +158,17 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// コピー元ファイルのフィルタリング用拡張子のリストを作成<br/>
-        /// 拡張子は区切り文字',', ' ', '.', ';', ':'を用いて複数指定できる
+        /// 変換先ファイルの拡張子をセット
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ExtensionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void ExtensionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            fileList.SetExtensions(ExtensionTextBox.Text);
+            fileList.Extension = ExtensionComboBox.Text;
         }
 
         /// <summary>
-        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタンの有効化/無効化を行う<br/>
-        /// 更に"ToListBox"の選択を"FromListBox"に反映
+        /// "FromListBox"を選択した際にUpボタンとDownボタン、Deleteボタン、Playボタン、Infoボタンの有効化/無効化を行う
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -185,6 +179,8 @@ namespace EasyFFmpeg
             UpButton.IsEnabled = enable;
             DownButton.IsEnabled = enable;
             DeleteButton.IsEnabled = enable;
+            PlayButton.IsEnabled = enable;
+            InfoButton.IsEnabled = enable;
 
             if (FromListBox.SelectedIndex == 0)
             {
@@ -195,32 +191,18 @@ namespace EasyFFmpeg
             {
                 DownButton.IsEnabled = false;
             }
-
-            ToListBox.SelectedIndex = FromListBox.SelectedIndex;
-        }
-
-        /// <summary>
-        /// "ToListBox"の選択を"FromListBox"に反映
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            FromListBox.SelectedIndex = ToListBox.SelectedIndex;
         }
 
         /// <summary>
         /// "FromListBox"から選択したリストアイテムを削除<br/>
-        /// 削除後にコピー先ファイル名を付けなおし、リスト表示をアップデート
+        /// 削除後に変換先ファイル名を付けなおし、リスト表示をアップデート
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             fileList.DeleteElement(FromListBox.SelectedIndex);
-
             FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
         }
 
         /// <summary>
@@ -237,7 +219,6 @@ namespace EasyFFmpeg
             fileList.UpElement(FromListBox.SelectedIndex);
 
             FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
 
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
             DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
@@ -257,7 +238,6 @@ namespace EasyFFmpeg
             fileList.DownElement(FromListBox.SelectedIndex);
 
             FromListBox.Items.Refresh();
-            ToListBox.Items.Refresh();
 
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
             DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
@@ -288,60 +268,34 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// "FromListBox"内のScrollViewerがスクロールした際のイベントハンドラ<br/>
-        /// "FromListBox"のスクロール量を"ToListBox"に反映
+        /// "FromListBox"から選択したファイルをFFplayで再生
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FromListBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((toScrollViewer != null) && (fromScrollViewer != null))
+            var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
+            if (rc == FileList.Code.NG)
             {
-                toScrollViewer.ScrollToVerticalOffset(fromScrollViewer.VerticalOffset);
+                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
             }
         }
 
         /// <summary>
-        /// "ToListBox"内のScrollViewerがスクロールした際のイベントハンドラ<br/>
-        /// "ToListBox"のスクロール量を"FromListBox"に反映
+        /// "FromListBox"から選択したファイルの情報をFFprobeで取得
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ToListBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        private async void InfoButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((fromScrollViewer != null) && (toScrollViewer != null))
+            var info = fileList.GetFileInfo(FromListBox.SelectedIndex);
+            if ((info.Result == null) || (info.Result ==""))
             {
-                fromScrollViewer.ScrollToVerticalOffset(toScrollViewer.VerticalOffset);
+                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
             }
-        }
-
-        /// <summary>
-        /// "FromListBox"の描画終了時のイベントハンドラ<br/>
-        /// "FromListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FromListBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            fromScrollViewer = GetDependencyObject<ScrollViewer>(FromListBox);
-            if (fromScrollViewer != null)
+            else
             {
-                fromScrollViewer.ScrollChanged += new ScrollChangedEventHandler(FromListBox_ScrollChanged);
-            }
-        }
-
-        /// <summary>
-        /// "ToListBox"の描画終了時のイベントハンドラ<br/>
-        /// "ToListBox"内のScrollViewrを取得すると共にScrollChangedイベントハンドラを追加
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ToListBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            toScrollViewer = GetDependencyObject<ScrollViewer>(ToListBox);
-            if (toScrollViewer != null)
-            {
-                toScrollViewer.ScrollChanged += new ScrollChangedEventHandler(ToListBox_ScrollChanged);
+                // ここに情報を表示するコードを追加
             }
         }
     }
