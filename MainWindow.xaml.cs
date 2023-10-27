@@ -166,16 +166,17 @@ namespace EasyFFmpeg
         /// </summary>
         private void EnableButtons()
         {
-            var enable = (FromListBox.SelectedIndex >= 0);
+            var enable_sel = (FromListBox.SelectedIndex >= 0);
+            var enable = (FromListBox.Items.Count > 0);
 
             AddButton.IsEnabled = true;
-            DeleteButton.IsEnabled = enable;
-            ClearButton.IsEnabled = (FromListBox.Items.Count > 0);
+            DeleteButton.IsEnabled = enable_sel;
+            ClearButton.IsEnabled = enable;
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
-            DownButton.IsEnabled = (FromListBox.SelectedIndex < (FromListBox.Items.Count - 1)) ? enable : false;
+            DownButton.IsEnabled = (FromListBox.SelectedIndex < (FromListBox.Items.Count - 1)) ? enable_sel : false;
             ConvButton.IsEnabled = enable;
-            PlayButton.IsEnabled = enable;
-            InfoButton.IsEnabled = enable;
+            PlayButton.IsEnabled = enable_sel;
+            InfoButton.IsEnabled = enable_sel;
         }
 
         /// <summary>

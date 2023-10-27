@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Printing;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,10 +109,10 @@ namespace EasyFFmpeg
 
             foreach (var file in FileNameList)
             {
-                info.Arguments += file.ToString() + " ";
+                info.Arguments += $"\"{file.ToString()}\" ";
             }
 
-            info.Arguments += ToFileName(FileNameList[0]);
+            info.Arguments += $"\"{ToFileName(FileNameList[0])}\"";
 
             try
             {
@@ -141,49 +143,41 @@ namespace EasyFFmpeg
         /// <remarks>
         /// 変換元ファイルは個別に変換される
         /// </remarks>
-        /// <param name="progress">プログレスバーダイアログ</param>
+        /// <param name="file">変換するファイル</param>
         /// <returns>処理結果</returns>
-        public async Task<Code> ConvertFiles(FileConversionProgress progress)
+        public Code ConvertFiles(string file)
         {
             Code result = Code.OK;
-            int fileCount = 0;
+//            int fileCount = 0;
 
             Message = "";
 
-            lock (balanceLock)
-            {
-                tokenSource = new CancellationTokenSource();
-            }
-
-            foreach (var file in FileNameList)
-            {
                 ProcessStartInfo info = new ProcessStartInfo();
                 info.FileName = "ffmpeg";
-                info.Arguments = $"-i {file} {ToFileName(file)}";
+                info.Arguments = $"-i \"{file}\" \"{ToFileName(file)}\"";
+                info.RedirectStandardError = true;
+                info.UseShellExecute = false;
+                info.CreateNoWindow = true;
 
-                progress.SetFileNameProgress(Path.GetFileName(file), (++fileCount * 100 / FileNameList.Count));
+//                progress.SetFileNameProgress(Path.GetFileName(file), (++fileCount * 100 / FileNameList.Count));
 
                 try
                 {
                     var ffmpeg = Process.Start(info);
                     if (ffmpeg != null)
                     {
-                        await ffmpeg.WaitForExitAsync(tokenSource.Token);
+                        string fileInfo = ffmpeg.StandardError.ReadToEnd();
+                        ffmpeg.WaitForExit();
+                        Debug.Write(fileInfo);
                     }
                 }
                 catch (Exception e)
                 {
                     Message = e.Message;
-                    result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
-                    break;
+                //                    result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
+                    result = Code.NG;
                 }
-            }
 
-            lock (balanceLock)
-            {
-                tokenSource.Dispose();
-                tokenSource = null;
-            }
 
             return result;
         }
@@ -238,7 +232,7 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="index">移動する要素のインデックス</param>
         /// <returns>処理結果</returns>
-        public async Task<Code> PlayFile(Int32 index)
+        public Code PlayFile(Int32 index)
         {
             Code result = Code.OK;
 
@@ -255,7 +249,7 @@ namespace EasyFFmpeg
                 ffmpeg = Process.Start(info);
                 if (ffmpeg != null)
                 {
-                    await ffmpeg.WaitForExitAsync();
+                    ffmpeg.WaitForExit();
                     ffmpeg = null;
                 }
             }
@@ -276,7 +270,7 @@ namespace EasyFFmpeg
         /// ファイルの情報</br>
         /// 取得失敗の場合にはnull
         /// </returns>
-        public async Task<String?> GetFileInfo(Int32 index)
+        public String GetFileInfo(Int32 index)
         {
             String fileInfo = "";
 
@@ -295,7 +289,7 @@ namespace EasyFFmpeg
                 if (ffmpeg != null)
                 {
                     fileInfo = ffmpeg.StandardError.ReadToEnd();
-                    await ffmpeg.WaitForExitAsync();
+                    ffmpeg.WaitForExit();
                     ffmpeg = null;
                 }
             }
