@@ -263,7 +263,9 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffplay";
-            info.Arguments = FileNameList[index].ToString();
+            info.Arguments = $"-hide_banner \"{FileNameList[index]?.FromFile}\"";
+            info.UseShellExecute = false;
+            info.CreateNoWindow = true;
 
             try
             {
