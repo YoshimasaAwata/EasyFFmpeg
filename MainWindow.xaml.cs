@@ -97,13 +97,41 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// 各ボタンを使用不可にする
+        /// </summary>
+        private void DisableButtons()
+        {
+            AddButton.IsEnabled = false;
+            DeleteButton.IsEnabled = false;
+            UpButton.IsEnabled = false;
+            DownButton.IsEnabled = false;
+            PlayButton.IsEnabled = false;
+            InfoButton.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// 各ボタンを条件に応じて使用可にする
+        /// </summary>
+        private void EnableButtons()
+        {
+            var enable = (FromListBox.SelectedIndex >= 0);
+
+            AddButton.IsEnabled = enable;
+            DeleteButton.IsEnabled = enable;
+            UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
+            DownButton.IsEnabled = (FromListBox.SelectedIndex < (FromListBox.Items.Count - 1)) ? enable : false;
+            PlayButton.IsEnabled = enable;
+            InfoButton.IsEnabled = enable;
+        }
+
+        /// <summary>
         /// 実際にファイルの変換を行う
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private async void ConvButton_Click(object sender, RoutedEventArgs e)
         {
-            ConvButton.IsEnabled = false;
+            DisableButtons();
 
             var progress = new FileConversionProgress();
             var convertTask = (IndividualRadio.IsChecked == true) ? fileList.ConvertFiles(progress) : fileList.JoinFiles(progress);
@@ -133,7 +161,7 @@ namespace EasyFFmpeg
                 }
             }
 
-            ConvButton.IsEnabled = true;
+            EnableButtons();
         }
 
         /// <summary>
@@ -174,23 +202,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void FromListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var enable = (FromListBox.SelectedIndex >= 0);
-
-            UpButton.IsEnabled = enable;
-            DownButton.IsEnabled = enable;
-            DeleteButton.IsEnabled = enable;
-            PlayButton.IsEnabled = enable;
-            InfoButton.IsEnabled = enable;
-
-            if (FromListBox.SelectedIndex == 0)
-            {
-                UpButton.IsEnabled = false;
-            }
-
-            if (FromListBox.SelectedIndex == (fileList.FileNameList.Count - 1))
-            {
-                DownButton.IsEnabled = false;
-            }
+            EnableButtons();
         }
 
         /// <summary>
@@ -203,6 +215,7 @@ namespace EasyFFmpeg
         {
             fileList.DeleteElement(FromListBox.SelectedIndex);
             FromListBox.Items.Refresh();
+            EnableButtons();
         }
 
         /// <summary>
@@ -217,11 +230,8 @@ namespace EasyFFmpeg
         private void UpButton_Click(object sender, RoutedEventArgs e)
         {
             fileList.UpElement(FromListBox.SelectedIndex);
-
             FromListBox.Items.Refresh();
-
-            UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
-            DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
+            EnableButtons();
         }
 
         /// <summary>
@@ -236,11 +246,8 @@ namespace EasyFFmpeg
         private void DownButton_Click(object sender, RoutedEventArgs e)
         {
             fileList.DownElement(FromListBox.SelectedIndex);
-
             FromListBox.Items.Refresh();
-
-            UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
-            DownButton.IsEnabled = (FromListBox.SelectedIndex < (fileList.FileNameList.Count - 1));
+            EnableButtons();
         }
 
         /// <summary>
@@ -274,11 +281,13 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
+            DisableButtons();
             var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
             if (rc == FileList.Code.NG)
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
             }
+            EnableButtons();
         }
 
         /// <summary>
@@ -288,6 +297,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private async void InfoButton_Click(object sender, RoutedEventArgs e)
         {
+            DisableButtons();
             var info = await fileList.GetFileInfo(FromListBox.SelectedIndex);
             if ((info == null) || (info ==""))
             {
@@ -298,6 +308,7 @@ namespace EasyFFmpeg
                 var infoBox = new InfoBox(info);
                 infoBox.ShowDialog();
             }
+            EnableButtons();
         }
     }
 }
