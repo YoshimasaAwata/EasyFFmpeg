@@ -54,11 +54,11 @@ namespace EasyFFmpeg
         /// <value>ロック用オブジェクト</value>
         private readonly object balanceLock = new object();
         /// <value>入力ビデオファイルの拡張子</value>
-        protected readonly List<string> video_extensions = new List<string>() {
-            ".asf", ".avi", ".swf", ".flv", ".mkv", ".mov", ".mp4", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
+        public List<string> VideoExtensions { get; } = new List<string> {
+            ".mp4", ".asf", ".avi", ".swf", ".flv", ".mkv", ".mov", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
         };
         /// <value>入力オーディオファイルの拡張子</value>
-        protected readonly List<string> audio_extensions = new List<string>() {
+        public List<string> AudioExtensions = new List<string> {
             ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
         };
         /// <value>変換先拡張子</value>
@@ -77,7 +77,7 @@ namespace EasyFFmpeg
             foreach (var file in files)
             {
                 var ext = Path.GetExtension(file); // 最初の'.'を含む
-                if (video_extensions.Contains(ext) || (AudioTarget && audio_extensions.Contains(ext)))
+                if (VideoExtensions.Contains(ext) || (AudioTarget && AudioExtensions.Contains(ext)))
                 {
                     FileNameList.Add(new FileNames() { FromFile = file });
                 }

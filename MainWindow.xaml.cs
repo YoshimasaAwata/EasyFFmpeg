@@ -24,14 +24,49 @@ namespace EasyFFmpeg
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        /// <summary>
+        /// オーディオ、ビデオの区別
+        /// </summary>
+        protected enum AV
+        {
+            /// <value>オーディオ</value>
+            Audio,
+            /// <value>ビデオ</value>
+            Video,
+        }
+
         /// <value>リストボックスに表示するファイル名のリスト</value>
         private FileList fileList = new FileList();
+        private int videoOutputSelectedIndex = 0;
+        private int audioOutputSelectedIndex = 0;
 
         public MainWindow()
         {
             InitializeComponent();
 
             FromListBox.ItemsSource = fileList.FileNameList;
+            SetOutputExtensions(AV.Video);
+        }
+
+        /// <summary>
+        /// 出力のビデオ/オーディオの拡張子をセット
+        /// </summary>
+        /// <param name="type">ビデオ/オーディオの区別</param>
+        private void SetOutputExtensions(AV type)
+        {
+            if (ExtensionComboBox != null)
+            {
+                if (type == AV.Audio)
+                {
+                    ExtensionComboBox.ItemsSource = fileList.AudioExtensions;
+                    ExtensionComboBox.SelectedIndex = audioOutputSelectedIndex;
+                }
+                else // (type == AV.Video)
+                {
+                    ExtensionComboBox.ItemsSource = fileList.VideoExtensions;
+                    ExtensionComboBox.SelectedIndex = videoOutputSelectedIndex;
+                }
+            }
         }
 
         /// <summary>
@@ -105,6 +140,7 @@ namespace EasyFFmpeg
             DeleteButton.IsEnabled = false;
             UpButton.IsEnabled = false;
             DownButton.IsEnabled = false;
+            ConvButton.IsEnabled = false;
             PlayButton.IsEnabled = false;
             InfoButton.IsEnabled = false;
         }
@@ -120,6 +156,7 @@ namespace EasyFFmpeg
             DeleteButton.IsEnabled = enable;
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
             DownButton.IsEnabled = (FromListBox.SelectedIndex < (FromListBox.Items.Count - 1)) ? enable : false;
+            ConvButton.IsEnabled = enable;
             PlayButton.IsEnabled = enable;
             InfoButton.IsEnabled = enable;
         }
@@ -192,7 +229,16 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void ExtensionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            fileList.Extension = ExtensionComboBox.Text;
+            if (VideoRadio.IsChecked == true)
+            {
+                videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
+                fileList.Extension = fileList.VideoExtensions[videoOutputSelectedIndex];
+            }
+            else    // (AudioRadio.IsChecked == true)
+            {
+                audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
+                fileList.Extension = fileList.AudioExtensions[audioOutputSelectedIndex];
+            }
         }
 
         /// <summary>
@@ -256,7 +302,7 @@ namespace EasyFFmpeg
         /// <typeparam name="T">取得する子コントロールのタイプ</typeparam>
         /// <param name="dependencyObject">親コントロール</param>
         /// <returns>指定のタイプの子コントロールもしくはnull</returns>
-        private T? GetDependencyObject<T> (DependencyObject dependencyObject) where T : DependencyObject
+        private T? GetDependencyObject<T>(DependencyObject dependencyObject) where T : DependencyObject
         {
             T? obj = null;
             if (dependencyObject != null)
@@ -299,7 +345,7 @@ namespace EasyFFmpeg
         {
             DisableButtons();
             var info = await fileList.GetFileInfo(FromListBox.SelectedIndex);
-            if ((info == null) || (info ==""))
+            if ((info == null) || (info == ""))
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
             }
@@ -309,6 +355,26 @@ namespace EasyFFmpeg
                 infoBox.ShowDialog();
             }
             EnableButtons();
+        }
+
+        /// <summary>
+        /// ビデオ出力がチェックされた時、拡張子をセット
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void VideoRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            SetOutputExtensions(AV.Video);
+        }
+
+        /// <summary>
+        /// オーディオ出力がチェックされた時、拡張子をセット
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AudioRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            SetOutputExtensions(AV.Audio);
         }
     }
 }
