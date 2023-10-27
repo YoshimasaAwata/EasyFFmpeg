@@ -64,14 +64,7 @@
                 <Label Content="拡張子 : " Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <ComboBox x:Name="ExtensionComboBox" Grid.Column="1" Margin="5,5,5,5" SelectionChanged="ExtensionComboBox_SelectionChanged" IsSynchronizedWithCurrentItem="True"/>
             </Grid>
-            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <!--FileListクラスの内部クラスFileNamesのプロパティを参照-->
-                        <TextBlock Text="{Binding FromFile}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <ListBox x:Name="FromListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="5,5,5,5" Background="#4C03A9F4" BorderBrush="#FF03A9F2" BorderThickness="1,1,1,1" SelectionChanged="FromListBox_SelectionChanged"/>
             <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <Button x:Name="AddButton" Click="AddButton_Click"
                     materialDesign:ButtonAssist.CornerRadius="25"

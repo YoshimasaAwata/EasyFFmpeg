@@ -18,17 +18,6 @@ namespace EasyFFmpeg
     internal class FileList
     {
         /// <summary>
-        /// 変換元および変換先のファイル名の対
-        /// </summary>
-        public class FileNames
-        {
-            /// <value>変換元ファイル名</value>
-            public string FromFile { get; set; } = "";
-            /// <value>変換先ファイル名</value>
-            public string ToFile { get; set; } = "";
-        }
-
-        /// <summary>
         /// メソッド実行結果
         /// </summary>
         public enum Code
@@ -42,7 +31,7 @@ namespace EasyFFmpeg
         }
 
         /// <value>変換元および変換先のファイル名のリスト</value>
-        public ObservableCollection<FileNames> FileNameList { get; } = new ObservableCollection<FileNames>();
+        public ObservableCollection<string> FileNameList { get; } = new ObservableCollection<string>();
         /// <value>エラー等のメッセージ</value>
         public string Message { get; private set; } = "";
         /// <value>ファイルの変換先フォルダ名</value>
@@ -65,12 +54,13 @@ namespace EasyFFmpeg
         public string Extension { get; set; } = ".mp4";
         /// <value>変換時に結合するかどうか</value>
         public bool Join { get; set; } = false;
+        protected Process? ffmpeg = null;
 
         /// <summary>
         /// 変換元ファイルをセット
         /// </summary>
         /// <param name="files">変換元ファイル名</param>
-        public void SetSourceDir(IEnumerable<string> files)
+        public void SetSourceFiles(IEnumerable<string> files)
         {
             FileNameList.Clear();
 
@@ -79,22 +69,21 @@ namespace EasyFFmpeg
                 var ext = Path.GetExtension(file); // 最初の'.'を含む
                 if (VideoExtensions.Contains(ext) || (AudioTarget && AudioExtensions.Contains(ext)))
                 {
-                    FileNameList.Add(new FileNames() { FromFile = file });
+                    FileNameList.Add(file);
                 }
             }
         }
 
         /// <summary>
-        /// "FileNameList"内にセットした変換元ファイル名と拡張子を元に変換先ファイル名を作成
+        /// 変換元のファイル名から変換先のファイル名を作成
         /// </summary>
-        protected void MakeToFilesList()
+        /// <param name="fromFileName">変換元ファイル名</param>
+        /// <returns></returns>
+        protected string ToFileName(string fromFileName)
         {
-            foreach (var file in FileNameList)
-            {
-                var name = Path.GetFileNameWithoutExtension(file.FromFile);
-                var path = (TargetDir == "") ? Path.GetDirectoryName(file.FromFile) : TargetDir;
-                file.ToFile = $"{path}\\{name}{Extension}";
-            }
+            var name = Path.GetFileNameWithoutExtension(fromFileName);
+            var path = (TargetDir == "") ? Path.GetDirectoryName(fromFileName) : TargetDir;
+            return $"{path}\\{name}{Extension}";
         }
 
         /// <summary>
@@ -110,7 +99,6 @@ namespace EasyFFmpeg
             Code result = Code.OK;
 
             Message = "";
-            MakeToFilesList();
 
             lock (balanceLock)
             {
@@ -126,7 +114,7 @@ namespace EasyFFmpeg
                 info.Arguments += file.ToString() + " ";
             }
 
-            info.Arguments += FileNameList[0].ToString();
+            info.Arguments += ToFileName(FileNameList[0]);
 
             try
             {
@@ -165,7 +153,6 @@ namespace EasyFFmpeg
             int fileCount = 0;
 
             Message = "";
-            MakeToFilesList();
 
             lock (balanceLock)
             {
@@ -176,9 +163,9 @@ namespace EasyFFmpeg
             {
                 ProcessStartInfo info = new ProcessStartInfo();
                 info.FileName = "ffmpeg";
-                info.Arguments = $"-i {file.FromFile} {file.ToFile}";
+                info.Arguments = $"-i {file} {ToFileName(file)}";
 
-                progress.SetFileNameProgress(Path.GetFileName(file.FromFile), (++fileCount * 100 / FileNameList.Count));
+                progress.SetFileNameProgress(Path.GetFileName(file), (++fileCount * 100 / FileNameList.Count));
 
                 try
                 {
@@ -263,16 +250,17 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffplay";
-            info.Arguments = $"-hide_banner \"{FileNameList[index]?.FromFile}\"";
+            info.Arguments = $"-autoexit \"{FileNameList[index]}\"";
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
 
             try
             {
-                var ffplay = Process.Start(info);
-                if (ffplay != null)
+                ffmpeg = Process.Start(info);
+                if (ffmpeg != null)
                 {
-                    await ffplay.WaitForExitAsync();
+                    await ffmpeg.WaitForExitAsync();
+                    ffmpeg = null;
                 }
             }
             catch (Exception e)
@@ -300,18 +288,19 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffprobe";
-            info.Arguments = $"-hide_banner \"{FileNameList[index]?.FromFile}\"";
+            info.Arguments = $"-hide_banner \"{FileNameList[index]}\"";
             info.RedirectStandardError = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
 
             try
             {
-                var ffprobe = Process.Start(info);
-                if (ffprobe != null)
+                ffmpeg = Process.Start(info);
+                if (ffmpeg != null)
                 {
-                    fileInfo = ffprobe.StandardError.ReadToEnd();
-                    await ffprobe.WaitForExitAsync();
+                    fileInfo = ffmpeg.StandardError.ReadToEnd();
+                    await ffmpeg.WaitForExitAsync();
+                    ffmpeg = null;
                 }
             }
             catch (Exception e)
@@ -326,8 +315,13 @@ namespace EasyFFmpeg
         /// <summary>
         /// ファイルの変換を中断
         /// </summary>
-        public void CancelConvert()
+        public void CancelFFmpeg()
         {
+            if (ffmpeg != null)
+            {
+                ffmpeg.Kill(true);
+                ffmpeg = null;
+            }
             lock (balanceLock)
             {
                 tokenSource?.Cancel();

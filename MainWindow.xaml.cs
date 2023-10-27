@@ -37,8 +37,12 @@ namespace EasyFFmpeg
 
         /// <value>リストボックスに表示するファイル名のリスト</value>
         private FileList fileList = new FileList();
+        /// <value>ビデオ出力の拡張子の選択されたインデックス</value>
         private int videoOutputSelectedIndex = 0;
+        /// <value>オーディオ出力の拡張子の選択されたインデックス</value>
         private int audioOutputSelectedIndex = 0;
+        /// <value>FFmpegを実行中かどうか</value>
+        private bool executing = false;
 
         public MainWindow()
         {
@@ -87,6 +91,7 @@ namespace EasyFFmpeg
                 {
                     extensions += $"*{ext},";
                 }
+                extensions = extensions.Substring(0, extensions.Length - 2);
                 openFolderDialog.Filters.Add(new CommonFileDialogFilter("Video", extensions));
                 if (AudioRadio.IsChecked == true)
                 {
@@ -95,6 +100,7 @@ namespace EasyFFmpeg
                     {
                         extensions += $"*{ext},";
                     }
+                    extensions = extensions.Substring(0, extensions.Length - 2);
                     openFolderDialog.Filters.Add(new CommonFileDialogFilter("Audio", extensions));
                 }
                 openFolderDialog.Filters.Add(new CommonFileDialogFilter("All", "*.*"));
@@ -102,7 +108,7 @@ namespace EasyFFmpeg
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     var sourceDir = openFolderDialog.FileNames;
-                    fileList.SetSourceDir(openFolderDialog.FileNames);
+                    fileList.SetSourceFiles(openFolderDialog.FileNames);
                     // コピーするファイルがない場合はCopyボタンは無効
                     ConvButton.IsEnabled = (fileList.FileNameList.Count > 0);
                 }
@@ -189,7 +195,7 @@ namespace EasyFFmpeg
 
             if (taskDone == progressTask)
             {
-                fileList.CancelConvert();
+                fileList.CancelFFmpeg();
                 await convertTask;
                 await DialogHost.Show(new ErrorDialog("キャンセルされました。", ErrorDialog.Type.Warning));
             }
@@ -219,6 +225,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            if (executing)
+            {
+                fileList.CancelFFmpeg();
+            }
             Application.Current.Shutdown();
         }
 
@@ -339,7 +349,9 @@ namespace EasyFFmpeg
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             DisableButtons();
+            executing = true;
             var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
+            executing = false;
             if (rc == FileList.Code.NG)
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
@@ -355,7 +367,9 @@ namespace EasyFFmpeg
         private async void InfoButton_Click(object sender, RoutedEventArgs e)
         {
             DisableButtons();
+            executing = true;
             var info = await fileList.GetFileInfo(FromListBox.SelectedIndex);
+            executing = false;
             if ((info == null) || (info == ""))
             {
                 await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
