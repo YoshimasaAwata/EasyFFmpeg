@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:EasyFFmpeg"
              mc:Ignorable="d"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              d:DesignHeight="200" d:DesignWidth="400">
     <materialDesign:Card>
         <Grid>
@@ -27,7 +28,18 @@
                 <Label Content="Error" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="#DDFF0000" FontSize="48"/>
             </StackPanel>
             <TextBlock x:Name="Message" TextWrapping="Wrap" Text="TextBlock" Cursor="Hand" Grid.Row="1" Margin="60,5,60,5"/>
-            <Button x:Name="OKButton" Content="OK" HorizontalAlignment="Right" Margin="0,5,10,10" Grid.Row="2" VerticalAlignment="Bottom" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2" VerticalAlignment="Bottom" Margin="0,5,10,10">
+                <Button x:Name="CancelButton" Content="Cancel" Margin="0,0,10,0" Visibility="Hidden" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                    <Button.CommandParameter>
+                        <system:Boolean>False</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
+                <Button x:Name="OKButton" Content="OK" Margin="0,0,0,0" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                    <Button.CommandParameter>
+                        <system:Boolean>True</system:Boolean>
+                    </Button.CommandParameter>
+                </Button>
+            </StackPanel>
         </Grid>
     </materialDesign:Card>
 </UserControl>

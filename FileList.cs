@@ -30,7 +30,7 @@ namespace EasyFFmpeg
             Cancel,
         }
 
-        /// <value>変換元および変換先のファイル名のリスト</value>
+        /// <value>ビデオの変換元および変換先のファイル名のリスト</value>
         public ObservableCollection<string> FileNameList { get; } = new ObservableCollection<string>();
         /// <value>エラー等のメッセージ</value>
         public string Message { get; private set; } = "";
@@ -38,8 +38,6 @@ namespace EasyFFmpeg
         public string TargetDir { get; set; } = "";
         /// <value>ファイル変換キャンセル用</value>
         private CancellationTokenSource? tokenSource = null;
-        /// <value>オーディオターゲットかどうか</value>
-        public bool AudioTarget { get; set; } = false;
         /// <value>ロック用オブジェクト</value>
         private readonly object balanceLock = new object();
         /// <value>入力ビデオファイルの拡張子</value>
@@ -62,12 +60,10 @@ namespace EasyFFmpeg
         /// <param name="files">変換元ファイル名</param>
         public void SetSourceFiles(IEnumerable<string> files)
         {
-            FileNameList.Clear();
-
             foreach (var file in files)
             {
                 var ext = Path.GetExtension(file); // 最初の'.'を含む
-                if (VideoExtensions.Contains(ext) || (AudioTarget && AudioExtensions.Contains(ext)))
+                if (VideoExtensions.Contains(ext) || AudioExtensions.Contains(ext))
                 {
                     FileNameList.Add(file);
                 }

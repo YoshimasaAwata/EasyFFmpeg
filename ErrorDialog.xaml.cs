@@ -33,9 +33,20 @@ namespace EasyFFmpeg
             Info,
         }
 
+        /// <summary>
+        /// ダイアログのボタン
+        /// </summary>
+        public enum OkCancel
+        {
+            /// <value>OKボタンのみ</value>
+            Ok,
+            /// <value>OKボタンとキャンセルボタン</value>
+            Cancel,
+        }
+
         /// <param name="message">ダイアログに表示するメッセージ</param>
         /// <param name="type">ダイアログのタイプ</param>
-        public ErrorDialog(string message, Type type = Type.Error)
+        public ErrorDialog(string message, Type type = Type.Error, OkCancel okCancel = OkCancel.Ok)
         {
             InitializeComponent();
 
@@ -52,6 +63,11 @@ namespace EasyFFmpeg
             else
             {
                 ErrorPanel.Visibility = Visibility.Visible;
+            }
+
+            if (okCancel == OkCancel.Cancel)
+            {
+                CancelButton.Visibility = Visibility.Visible;
             }
         }
     }

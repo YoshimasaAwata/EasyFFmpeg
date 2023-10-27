@@ -107,10 +107,8 @@ namespace EasyFFmpeg
 
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    var sourceDir = openFolderDialog.FileNames;
                     fileList.SetSourceFiles(openFolderDialog.FileNames);
-                    // コピーするファイルがない場合はCopyボタンは無効
-                    ConvButton.IsEnabled = (fileList.FileNameList.Count > 0);
+                    EnableButtons();
                 }
             }
         }
@@ -142,7 +140,7 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        private void ClearDirButton_Click(object sender, RoutedEventArgs e)
         {
             ToTextBox.Clear();
             fileList.TargetDir = "";
@@ -155,6 +153,7 @@ namespace EasyFFmpeg
         {
             AddButton.IsEnabled = false;
             DeleteButton.IsEnabled = false;
+            ClearButton.IsEnabled = false;
             UpButton.IsEnabled = false;
             DownButton.IsEnabled = false;
             ConvButton.IsEnabled = false;
@@ -169,8 +168,9 @@ namespace EasyFFmpeg
         {
             var enable = (FromListBox.SelectedIndex >= 0);
 
-            AddButton.IsEnabled = enable;
+            AddButton.IsEnabled = true;
             DeleteButton.IsEnabled = enable;
+            ClearButton.IsEnabled = (FromListBox.Items.Count > 0);
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
             DownButton.IsEnabled = (FromListBox.SelectedIndex < (FromListBox.Items.Count - 1)) ? enable : false;
             ConvButton.IsEnabled = enable;
@@ -286,6 +286,23 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// "FromListBox"から全リストアイテムを削除
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            DisableButtons();
+            var dialog = new ErrorDialog("本当に全てのファイルをクリアしますか？", ErrorDialog.Type.Warning, ErrorDialog.OkCancel.Cancel);
+            bool? result = await DialogHost.Show(dialog) as bool?;
+            if (result == true)
+            {
+                fileList.FileNameList.Clear();
+            }
+            EnableButtons();
+        }
+
+        /// <summary>
         /// "FromListBox"から選択したリストアイテムを上に移動<br/>
         /// 移動後にコピー先ファイル名を付けなおし、リスト表示をアップデート
         /// </summary>
@@ -390,7 +407,6 @@ namespace EasyFFmpeg
         private void VideoRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Video);
-            fileList.AudioTarget = false;
         }
 
         /// <summary>
@@ -401,7 +417,6 @@ namespace EasyFFmpeg
         private void AudioRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Audio);
-            fileList.AudioTarget = true;
         }
     }
 }

@@ -13,7 +13,7 @@
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="EasyFFmpeg" Height="450" Width="800" ShowCloseButton="False">
+        Title="EasyFFmpeg" Height="600" Width="800" ShowCloseButton="False">
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
             <Button x:Name="AboutButton" Content="About" Click="AboutButton_Click"/>
@@ -50,7 +50,7 @@
                 </StackPanel>
                 <Button x:Name="ToButton" Content=" To :  " Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ToButton_Click"/>
                 <TextBox x:Name="ToTextBox" TextWrapping="Wrap" Grid.Column="2" Margin="5,5,5,5" IsReadOnly="True"/>
-                <Button x:Name="ClearButton" Content="Clear" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ClearButton_Click"/>
+                <Button x:Name="ClearDirButton" Content="ClearDir" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" Click="ClearDirButton_Click"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="4">
                     <RadioButton x:Name="VideoRadio" Content="Video" IsChecked="True" GroupName="av" Checked="VideoRadio_Checked"/>
                     <RadioButton x:Name="AudioRadio" Content="Audio" GroupName="av" Checked="AudioRadio_Checked"/>
@@ -80,6 +80,14 @@
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="FileDocumentRemoveOutline" />
                         <TextBlock Text="Delete"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ClearButton" IsEnabled="False"
+                    materialDesign:ButtonAssist.CornerRadius="25"
+                    ToolTip="全ファイルを削除します" ToolTipService.ShowOnDisabled="True" Cursor="" Margin="0,5,0,5" Click="ClearButton_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CloseOctagonOutline" />
+                        <TextBlock Text="Clear"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="UpButton" IsEnabled="False"
@@ -123,7 +131,7 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <Button x:Name="CloseButton" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Click="CloseButton_Click" VerticalAlignment="Center" Margin="0,5,0,5">
+            <Button x:Name="CloseButton" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Click="CloseButton_Click" VerticalAlignment="Center" Margin="0,5,0,10">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconVaadinIcons Kind="Exit" />
                     <TextBlock Text="Exit"/>
