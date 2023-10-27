@@ -82,11 +82,22 @@ namespace EasyFFmpeg
                 Multiselect = true,
             })
             {
-                openFolderDialog.Filters.Add(new CommonFileDialogFilter("Video", "*.asf, *.avi, *.swf, *.flv, *.mkv, *.mov, *.mp4, *.ogv, *.ogg, *.ogx, *.ts, *.webm"));
+                string extensions = "";
+                foreach (var ext in fileList.VideoExtensions)
+                {
+                    extensions += $"*{ext},";
+                }
+                openFolderDialog.Filters.Add(new CommonFileDialogFilter("Video", extensions));
                 if (AudioRadio.IsChecked == true)
                 {
-                    openFolderDialog.Filters.Add(new CommonFileDialogFilter("Audio", "*.aac, *.ac3, *.adpcm, *.amr, *.alac, *.fla, *.flac, *.mp1, *.mp2, *.mp3, *.als, *.pcm, *.qcp, *.ra, *.oga, *.wma"));
+                    extensions = "";
+                    foreach (var ext in fileList.AudioExtensions)
+                    {
+                        extensions += $"*{ext},";
+                    }
+                    openFolderDialog.Filters.Add(new CommonFileDialogFilter("Audio", extensions));
                 }
+                openFolderDialog.Filters.Add(new CommonFileDialogFilter("All", "*.*"));
 
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
@@ -365,6 +376,7 @@ namespace EasyFFmpeg
         private void VideoRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Video);
+            fileList.AudioTarget = false;
         }
 
         /// <summary>
@@ -375,6 +387,7 @@ namespace EasyFFmpeg
         private void AudioRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Audio);
+            fileList.AudioTarget = true;
         }
     }
 }

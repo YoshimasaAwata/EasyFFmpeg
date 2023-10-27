@@ -59,7 +59,7 @@ namespace EasyFFmpeg
         };
         /// <value>入力オーディオファイルの拡張子</value>
         public List<string> AudioExtensions = new List<string> {
-            ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
+            ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".m4a", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
         };
         /// <value>変換先拡張子</value>
         public string Extension { get; set; } = ".mp4";
