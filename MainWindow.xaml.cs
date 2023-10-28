@@ -425,5 +425,34 @@ namespace EasyFFmpeg
         {
             SetOutputExtensions(AV.Audio);
         }
+
+        private void FromListBox_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void FromListBox_Drop(object sender, DragEventArgs e)
+        {
+            var dropFiles = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (dropFiles == null) return;
+
+            foreach (var file in dropFiles)
+            {
+                if (File.Exists(file))
+                {
+                    fileList.AddSourceFile(file);
+                }
+            }
+
+            EnableButtons();
+        }
     }
 }

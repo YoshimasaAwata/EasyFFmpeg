@@ -59,11 +59,20 @@ namespace EasyFFmpeg
         {
             foreach (var file in files)
             {
-                var ext = Path.GetExtension(file); // 最初の'.'を含む
-                if (VideoExtensions.Contains(ext) || AudioExtensions.Contains(ext))
-                {
-                    FileNameList.Add(file);
-                }
+                AddSourceFile(file);
+            }
+        }
+
+        /// <summary>
+        /// 変換元ファイルをセット
+        /// </summary>
+        /// <param name="files">変換元ファイル名</param>
+        public void AddSourceFile(string file)
+        {
+            var ext = Path.GetExtension(file); // 最初の'.'を含む
+            if (VideoExtensions.Contains(ext) || AudioExtensions.Contains(ext))
+            {
+                FileNameList.Add(file);
             }
         }
 
