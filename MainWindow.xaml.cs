@@ -15,7 +15,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.IO;
+using System.Threading;
 
 namespace EasyFFmpeg
 {
@@ -188,33 +189,38 @@ namespace EasyFFmpeg
         {
             DisableButtons();
 
-            var progress = new FileConversionProgress();
-            var convertTask = (IndividualRadio.IsChecked == true) ? fileList.ConvertFiles(progress) : fileList.JoinFiles(progress);
-            var progressTask = DialogHost.Show(progress);
+            var count = fileList.FileNameList.Count;
 
-            var taskDone = await Task.WhenAny(convertTask, progressTask);
-
-            if (taskDone == progressTask)
+            if (IndividualRadio.IsChecked == true)
             {
-                fileList.CancelFFmpeg();
-                await convertTask;
-                await DialogHost.Show(new ErrorDialog("キャンセルされました。", ErrorDialog.Type.Warning));
-            }
-            else
-            {
-                DialogHost.Close(null);
-                await progressTask;
-
-                var rc = convertTask.Result;
-                if (rc == FileList.Code.NG)
+                for (int i = 0; i < count; i++)
                 {
-                    await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Error));
-                }
-                else
-                {
-                    await DialogHost.Show(new ErrorDialog("変換しました。", ErrorDialog.Type.Info));
+                    var file = fileList.FileNameList[i];
+                    var result = fileList.ConvertFiles(i);
+                    if (result != FileList.Code.OK)
+                    {
+                        var message = fileList.Message + "\n変換を続けますか？";
+                        var type = (result == FileList.Code.NG) ? ErrorDialog.Type.Error : ErrorDialog.Type.Warning;
+                        var dialog = new ErrorDialog(message, type, ErrorDialog.ButtonType.YesNo);
+                        var yesno = await DialogHost.Show(dialog) as bool?;
+                        if (yesno != true)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
+            else // (JoinRadio.IsChecked == true)
+            {
+                var result = fileList.JoinFiles();
+                if (result != FileList.Code.OK)
+                {
+                    var type = (result == FileList.Code.NG) ? ErrorDialog.Type.Error : ErrorDialog.Type.Warning;
+                    await DialogHost.Show(new ErrorDialog(fileList.Message, type));
+                }
+            }
+
+            await DialogHost.Show(new ErrorDialog("変換が終了しました。", ErrorDialog.Type.Info));
 
             EnableButtons();
         }
@@ -294,7 +300,7 @@ namespace EasyFFmpeg
         private async void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             DisableButtons();
-            var dialog = new ErrorDialog("本当に全てのファイルをクリアしますか？", ErrorDialog.Type.Warning, ErrorDialog.OkCancel.Cancel);
+            var dialog = new ErrorDialog("本当に全てのファイルをクリアしますか？", ErrorDialog.Type.Warning, ErrorDialog.ButtonType.OkCancel);
             bool? result = await DialogHost.Show(dialog) as bool?;
             if (result == true)
             {
@@ -368,7 +374,7 @@ namespace EasyFFmpeg
         {
             DisableButtons();
             executing = true;
-            var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
+            var rc = fileList.PlayFile(FromListBox.SelectedIndex);
             executing = false;
             if (rc == FileList.Code.NG)
             {
@@ -386,7 +392,7 @@ namespace EasyFFmpeg
         {
             DisableButtons();
             executing = true;
-            var info = await fileList.GetFileInfo(FromListBox.SelectedIndex);
+            var info = fileList.GetFileInfo(FromListBox.SelectedIndex);
             executing = false;
             if ((info == null) || (info == ""))
             {

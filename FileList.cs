@@ -17,7 +17,7 @@ namespace EasyFFmpeg
     /// 変換元および変換先のファイル名のリストの管理<br/>
     /// 実際のファイルの変換も行う
     /// </summary>
-    internal class FileList
+    public class FileList
     {
         /// <summary>
         /// メソッド実行結果
@@ -38,10 +38,6 @@ namespace EasyFFmpeg
         public string Message { get; private set; } = "";
         /// <value>ファイルの変換先フォルダ名</value>
         public string TargetDir { get; set; } = "";
-        /// <value>ファイル変換キャンセル用</value>
-        private CancellationTokenSource? tokenSource = null;
-        /// <value>ロック用オブジェクト</value>
-        private readonly object balanceLock = new object();
         /// <value>入力ビデオファイルの拡張子</value>
         public List<string> VideoExtensions { get; } = new List<string> {
             ".mp4", ".asf", ".avi", ".swf", ".flv", ".mkv", ".mov", ".ogv", ".ogg", ".ogx", ".ts", ".webm"
@@ -52,8 +48,7 @@ namespace EasyFFmpeg
         };
         /// <value>変換先拡張子</value>
         public string Extension { get; set; } = ".mp4";
-        /// <value>変換時に結合するかどうか</value>
-        public bool Join { get; set; } = false;
+        /// <value>変換のためのプロセス</value>
         protected Process? ffmpeg = null;
 
         /// <summary>
@@ -90,27 +85,24 @@ namespace EasyFFmpeg
         /// <remarks>
         /// 変換元ファイルは結合される
         /// </remarks>
-        /// <param name="progress">プログレスバーダイアログ</param>
         /// <returns>処理結果</returns>
-        public async Task<Code> JoinFiles(FileConversionProgress progress)
+        public Code JoinFiles()
         {
             Code result = Code.OK;
 
             Message = "";
 
-            lock (balanceLock)
-            {
-                tokenSource = new CancellationTokenSource();
-            }
-
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffmpeg";
-            info.Arguments = $"-i ";
+            info.Arguments = $"-hide_banner ";
+            info.UseShellExecute = false;
 
             foreach (var file in FileNameList)
             {
-                info.Arguments += $"\"{file.ToString()}\" ";
+                info.Arguments += $"-i \"{file}\" ";
             }
+
+            info.Arguments += $"-filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
 
             info.Arguments += $"\"{ToFileName(FileNameList[0])}\"";
 
@@ -119,19 +111,27 @@ namespace EasyFFmpeg
                 var ffmpeg = Process.Start(info);
                 if (ffmpeg != null)
                 {
-                    await ffmpeg.WaitForExitAsync(tokenSource.Token);
+                    ffmpeg.WaitForExit();
+                    if (ffmpeg.ExitCode != 0)
+                    {
+                        if (ffmpeg.ExitCode == 255)
+                        {
+                            Message = "変換がキャンセルされました。";
+                            result = Code.Cancel;
+                        }
+                        else
+                        {
+                            Message = "変換に失敗しました。";
+                            result = Code.NG;
+                        }
+                    }
+                    Debug.Write($"{ffmpeg.ExitCode}\n");
                 }
             }
             catch (Exception e)
             {
-                Message = e.Message;
-                result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
-            }
-
-            lock (balanceLock)
-            {
-                tokenSource.Dispose();
-                tokenSource = null;
+                Message = "結合/変換に失敗しました\n" + e.Message;
+                result = Code.NG;
             }
 
             return result;
@@ -140,44 +140,49 @@ namespace EasyFFmpeg
         /// <summary>
         /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
         /// </summary>
-        /// <remarks>
-        /// 変換元ファイルは個別に変換される
-        /// </remarks>
-        /// <param name="file">変換するファイル</param>
+        /// <param name="index">変換する要素のインデックス</param>
         /// <returns>処理結果</returns>
-        public Code ConvertFiles(string file)
+        public Code ConvertFiles(Int32 index)
         {
             Code result = Code.OK;
-//            int fileCount = 0;
+            //            int fileCount = 0;
+            var file = FileNameList[index];
 
             Message = "";
 
-                ProcessStartInfo info = new ProcessStartInfo();
-                info.FileName = "ffmpeg";
-                info.Arguments = $"-i \"{file}\" \"{ToFileName(file)}\"";
-                info.RedirectStandardError = true;
-                info.UseShellExecute = false;
-                info.CreateNoWindow = true;
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffmpeg";
+            info.Arguments = $"-hide_banner -i \"{file}\" \"{ToFileName(file)}\"";
+            info.UseShellExecute = false;
 
-//                progress.SetFileNameProgress(Path.GetFileName(file), (++fileCount * 100 / FileNameList.Count));
-
-                try
+            try
+            {
+                var ffmpeg = Process.Start(info);
+                if (ffmpeg != null)
                 {
-                    var ffmpeg = Process.Start(info);
-                    if (ffmpeg != null)
+                    ffmpeg.WaitForExit();
+                    if (ffmpeg.ExitCode != 0)
                     {
-                        string fileInfo = ffmpeg.StandardError.ReadToEnd();
-                        ffmpeg.WaitForExit();
-                        Debug.Write(fileInfo);
+                        Message = Path.GetFileName(file);
+                        if (ffmpeg.ExitCode == 255)
+                        {
+                            Message += "の変換がキャンセルされました。";
+                            result = Code.Cancel;
+                        }
+                        else
+                        {
+                            Message += "の変換に失敗しました。";
+                            result = Code.NG;
+                        }
                     }
+                    Debug.Write($"{ffmpeg.ExitCode}\n");
                 }
-                catch (Exception e)
-                {
-                    Message = e.Message;
-                //                    result = tokenSource.IsCancellationRequested ? Code.Cancel : Code.NG;
-                    result = Code.NG;
-                }
-
+            }
+            catch (Exception e)
+            {
+                Message = Path.GetFileName(file) + "の変換に失敗しました\n" + e.Message;
+                result = Code.NG;
+            }
 
             return result;
         }
@@ -270,9 +275,9 @@ namespace EasyFFmpeg
         /// ファイルの情報</br>
         /// 取得失敗の場合にはnull
         /// </returns>
-        public String GetFileInfo(Int32 index)
+        public string? GetFileInfo(Int32 index)
         {
-            String fileInfo = "";
+            string fileInfo = "";
 
             Message = "";
 
@@ -311,10 +316,6 @@ namespace EasyFFmpeg
             {
                 ffmpeg.Kill(true);
                 ffmpeg = null;
-            }
-            lock (balanceLock)
-            {
-                tokenSource?.Cancel();
             }
         }
     }
