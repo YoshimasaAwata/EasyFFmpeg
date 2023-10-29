@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace EasyFFmpeg
 {
@@ -20,13 +21,29 @@ namespace EasyFFmpeg
         /// <value>ファイル名</value>
         public string FileName { get; protected set; }
         /// <value>ファイル名</value>
-        public string FFprobeInfo { get; protected set; } = "";
+        public string FFprobeXml { get; protected set; } = "";
         /// <value>コンテナ名</value>
         public string Container { get; protected set; } = "";
         /// <value>再生時間</value>
         public string Duration { get; protected set; } = "";
         /// <value>オーディオコーデック</value>
         public string AudioCodec { get; protected set; } = "";
+        /// <value>オーディオサンプリングレート</value>
+        public string AudioSamplingRate { get; protected set; } = "";
+        /// <value>オーディオチャンネル数</value>
+        public string AudioCannel { get; protected set; } = "";
+        /// <value>オーディオビットレート</value>
+        public string AudioBitRate { get; protected set; } = "";
+        /// <value>ビデオコーデック</value>
+        public string VideoCodec { get; protected set; } = "";
+        /// <value>ビデオ幅</value>
+        public string VideoWidth { get; protected set; } = "";
+        /// <value>ビデオ高さ</value>
+        public string VideoHeight { get; protected set; } = "";
+        /// <value>ビデオフレームレート</value>
+        public string VideoFrameRate { get; protected set; } = "";
+        /// <value>ビデオビットレート</value>
+        public string VideoBitRate { get; protected set; } = "";
 
         /// <summary>
         /// コンストラクター
@@ -38,6 +55,7 @@ namespace EasyFFmpeg
             FileName = file;
 
             DoFFprobe();
+            AnalyzeInfo();
         }
 
         /// <summary>
@@ -48,8 +66,8 @@ namespace EasyFFmpeg
         {
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffprobe";
-            info.Arguments = $"-hide_banner \"{FileName}\"";
-            info.RedirectStandardError = true;
+            info.Arguments = $"-hide_banner -v error -i \"{FileName}\" -show_streams -show_format -print_format xml";
+            info.RedirectStandardOutput = true;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
 
@@ -58,7 +76,7 @@ namespace EasyFFmpeg
                 var ffprobe = Process.Start(info);
                 if (ffprobe != null)
                 {
-                    FFprobeInfo = ffprobe.StandardError.ReadToEnd();
+                    FFprobeXml = ffprobe.StandardOutput.ReadToEnd();
                     ffprobe.WaitForExit();
                 }
             }
@@ -70,35 +88,115 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// コンテナに関する情報取得
+        /// </summary>
+        /// <param name="doc">XMLパーサー</param>
+        protected void AnalyzeContainerInfo(XmlDocument doc)
+        {
+            var containerFormat = doc.SelectNodes("ffprobe/format")?.Item(0);
+
+            if (containerFormat != null)
+            {
+                var attr = containerFormat.Attributes?["format_name"];
+                if (attr != null)
+                {
+                    Container = attr.Value;
+                }
+                attr = containerFormat.Attributes?["duration"];
+                if (attr != null)
+                {
+                    var time = attr.Value;
+                    var idx = time.IndexOf('.');
+                    if (idx >= 0)
+                    {
+                        Duration = time.Remove(idx);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// オーディオに関する情報取得
+        /// </summary>
+        /// <param name="doc">XMLパーサー</param>
+        protected void AnalyzeAudioInfo(XmlDocument doc)
+        {
+            var audioStream = doc.SelectNodes("ffprobe/streams/stream[@codec_type='audio']")?.Item(0);
+
+            if (audioStream != null)
+            {
+                var attr = audioStream.Attributes?["codec_name"];
+                if (attr != null)
+                {
+                    AudioCodec = attr.Value;
+                }
+                attr = audioStream.Attributes?["sample_rate"];
+                if (attr != null)
+                {
+                    AudioSamplingRate = attr.Value;
+                }
+                attr = audioStream.Attributes?["channel_layout"];
+                if (attr != null)
+                {
+                    AudioCannel = attr.Value;
+                }
+                attr = audioStream.Attributes?["bit_rate"];
+                if (attr != null)
+                {
+                    AudioBitRate = attr.Value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ビデオに関する情報取得
+        /// </summary>
+        /// <param name="doc">XMLパーサー</param>
+        protected void AnalyzeVideoInfo(XmlDocument doc)
+        {
+            var videoStream = doc.SelectNodes("ffprobe/streams/stream[@codec_type='video']")?.Item(0);
+
+            if (videoStream != null)
+            {
+                var attr = videoStream.Attributes?["codec_name"];
+                if (attr != null)
+                {
+                    VideoCodec = attr.Value;
+                }
+                attr = videoStream.Attributes?["width"];
+                if (attr != null)
+                {
+                    VideoWidth = attr.Value;
+                }
+                attr = videoStream.Attributes?["height"];
+                if (attr != null)
+                {
+                    VideoHeight = attr.Value;
+                }
+                attr = videoStream.Attributes?["avg_frame_rate"];
+                if (attr != null)
+                {
+                    VideoFrameRate = attr.Value;
+                }
+                attr = videoStream.Attributes?["bit_rate"];
+                if (attr != null)
+                {
+                    VideoBitRate = attr.Value;
+                }
+            }
+        }
+
+        /// <summary>
         /// FFprobeで取得した情報を分析
         /// </summary>
         protected void AnalyzeInfo()
         {
-            var GetContent = (string src) => src.Substring(src.IndexOf(":") + 1).Trim();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(FFprobeXml);
 
-            var lines = FFprobeInfo.Split('\n');
-            var majorLine = Array.Find<string>(lines, (x => x.Contains("major_brand")));
-            var dulationLine = Array.Find<string>(lines, (x => x.Contains("Duration:")));
-            var audioLine = Array.Find<string>(lines, (x => (x.Contains("Stream #0") && x.Contains("Audio:"))));
-            var VideoLine = Array.Find<string>(lines, (x => (x.Contains("Stream #0") && x.Contains("Video:"))));
-
-            if (majorLine != null)
-            {
-                Container = GetContent(majorLine);
-            }
-
-            if (dulationLine != null)
-            {
-                var dLine = Regex.Match(dulationLine, @"Duration:\s*[0-9:]*").Value;
-                Duration = Regex.Match(dLine, @"[0-9:]*").Value; 
-            }
-
-            if (audioLine != null)
-            {
-                var aLine = Regex.Match(audioLine, @"Audio:\s*\S+").Value;
-                AudioCodec = GetContent(aLine);
-
-            }
+            AnalyzeContainerInfo(doc);
+            AnalyzeAudioInfo(doc);
+            AnalyzeVideoInfo(doc);
         }
     }
 }

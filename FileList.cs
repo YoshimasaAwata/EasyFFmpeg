@@ -286,25 +286,31 @@ namespace EasyFFmpeg
         /// </returns>
         public string? GetFileInfo(Int32 index)
         {
-            string fileInfo = "";
-
+            string info = "ファイル情報:\n";
             Message = "";
-
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.FileName = "ffprobe";
-            info.Arguments = $"-hide_banner \"{FileNameList[index]}\"";
-            info.RedirectStandardError = true;
-            info.UseShellExecute = false;
-            info.CreateNoWindow = true;
 
             try
             {
-                ffmpeg = Process.Start(info);
-                if (ffmpeg != null)
+                FileInfo fileInfo = new FileInfo(FileNameList[index]);
+                info += "  コンテナ情報\n";
+                info += $"    フォーマット: {fileInfo.Container}\n";
+                info += $"    再生時間: {fileInfo.Duration} 秒\n";
+                if (fileInfo.AudioCodec != "")
                 {
-                    fileInfo = ffmpeg.StandardError.ReadToEnd();
-                    ffmpeg.WaitForExit();
-                    ffmpeg = null;
+                    info += "  オーディオ情報:\n";
+                    info += $"    オーディオコーデック: {fileInfo.AudioCodec}\n";
+                    info += $"    オーディオサンプリングレート: {fileInfo.AudioSamplingRate} Hz\n";
+                    info += $"    オーディオチャンネル: {fileInfo.AudioCannel}\n";
+                    info += $"    オーディオビットレート: {fileInfo.AudioBitRate} bps\n";
+                }
+                if (fileInfo.VideoCodec != "")
+                {
+                    info += "  ビデオ情報:\n";
+                    info += $"    ビデオコーデック: {fileInfo.VideoCodec}\n";
+                    info += $"    ビデオ幅: {fileInfo.VideoWidth} ピクセル\n";
+                    info += $"    ビデオ高さ: {fileInfo.VideoHeight} ピクセル\n";
+                    info += $"    ビデオフレームレート: {fileInfo.VideoFrameRate} fps\n";
+                    info += $"    ビデオビットレート: {fileInfo.VideoBitRate} bps\n";
                 }
             }
             catch (Exception e)
@@ -313,7 +319,7 @@ namespace EasyFFmpeg
                 return null;
             }
 
-            return fileInfo;
+            return info;
         }
 
         /// <summary>
