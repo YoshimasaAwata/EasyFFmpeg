@@ -89,6 +89,50 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// ファイル結合/変換時のFFmpegの引数を作成
+        /// </summary>
+        /// <returns>引数</returns>
+        protected string CreateArgumentsJoin()
+        {
+            var args = $"-hide_banner";
+
+            foreach (var file in FileNameList)
+            {
+                args += $" -i \"{file}\"";
+            }
+
+            try
+            {
+                FileInfo info = new FileInfo(FileNameList[0]);
+                if (info.AudioCodec != "")
+                {
+                    var abr = info.GetAudioBitRate();
+                    args += (abr > 0) ? $" -b:a {abr}" : "";
+                }
+                if (info.VideoCodec != "")
+                {
+                    //var vbr = info.GetVideoBitRate();
+                    //args += (vbr > 0) ? $" -b:v {vbr}" : "";
+                    //args += (vbr > 0) ? $" -crf 10" : "";
+                    if (Extension == ".mp4")
+                    {
+                        //args += " -c:v h264_nvenc";
+                        args += " -c:v libopenh264";
+                    }
+                }
+            }
+            catch (Exception e) 
+            {
+                Message = e.Message;
+            }
+
+            args += $" -filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
+            args += $" {ToFileName(FileNameList[0])}";
+
+            return args;
+        }
+
+        /// <summary>
         /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
         /// </summary>
         /// <remarks>
@@ -103,17 +147,8 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffmpeg";
-            info.Arguments = $"-hide_banner ";
+            info.Arguments = CreateArgumentsJoin();
             info.UseShellExecute = false;
-
-            foreach (var file in FileNameList)
-            {
-                info.Arguments += $"-i \"{file}\" ";
-            }
-
-            info.Arguments += $"-filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
-
-            info.Arguments += $"\"{ToFileName(FileNameList[0])}\"";
 
             try
             {
@@ -147,6 +182,60 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// ファイル変換時のFFmpegの引数を作成
+        /// </summary>
+        /// <param name="file">変換元のファイル名</param>
+        /// <returns>引数</returns>
+        protected string CreateArguments(string file)
+        {
+            var args = $"-hide_banner -i \"{file}\"";
+
+            try
+            {
+                FileInfo info = new FileInfo(file);
+                var ext = Path.GetExtension(file);
+                if (ext == Extension)
+                {
+                    if (info.AudioCodec != "")
+                    {
+                        args += " -c:a copy";
+                    }
+                    if (info.VideoCodec != "")
+                    {
+                        args += " -c:v copy";
+                    }
+                }
+                else
+                {
+                    if (info.AudioCodec != "")
+                    {
+                        var abr = info.GetAudioBitRate();
+                        args += (abr > 0) ? $" -b:a {abr}" : "";
+                    }
+                    if (info.VideoCodec != "")
+                    {
+                        //var vbr = info.GetVideoBitRate();
+                        //args += (vbr > 0) ? $" -b:v {vbr}" : "";
+                        //args += (vbr > 0) ? $" -crf 10" : "";
+                        if (Extension == ".mp4")
+                        {
+                            //args += " -c:v h264_nvenc";
+                            args += " -c:v libopenh264";
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Message = e.Message;
+            }
+
+            args += $" {ToFileName(file)}";
+
+            return args;
+        }
+
+        /// <summary>
         /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
         /// </summary>
         /// <param name="index">変換する要素のインデックス</param>
@@ -161,7 +250,7 @@ namespace EasyFFmpeg
 
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "ffmpeg";
-            info.Arguments = $"-hide_banner -i \"{file}\" \"{ToFileName(file)}\"";
+            info.Arguments = CreateArguments(file);
             info.UseShellExecute = false;
 
             try

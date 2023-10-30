@@ -191,7 +191,7 @@ namespace EasyFFmpeg
 
             var count = fileList.FileNameList.Count;
 
-            if (IndividualRadio.IsChecked == true)
+            if ((IndividualRadio.IsChecked == true) || (fileList.FileNameList.Count == 1))
             {
                 for (int i = 0; i < count; i++)
                 {

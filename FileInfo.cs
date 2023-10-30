@@ -198,5 +198,37 @@ namespace EasyFFmpeg
             AnalyzeAudioInfo(doc);
             AnalyzeVideoInfo(doc);
         }
+
+        /// <summary>
+        /// オーディオのビットレートを整数型で取得
+        /// </summary>
+        /// <returns>オーディオのビットレート</returns>
+        public int GetAudioBitRate()
+        {
+            try
+            {
+                return Convert.ToInt32(AudioBitRate);
+            }
+            catch 
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// ビデオのビットレートを整数型で取得
+        /// </summary>
+        /// <returns>ビデオのビットレート</returns>
+        public int GetVideoBitRate()
+        {
+            try
+            {
+                return Convert.ToInt32(VideoBitRate);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
     }
 }
