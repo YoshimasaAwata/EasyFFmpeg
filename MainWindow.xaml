@@ -44,7 +44,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
                     <RadioButton x:Name="IndividualRadio" Content="Individual" IsChecked="True" GroupName="ij"/>
                     <RadioButton x:Name="JoinRadio" Content="Join" GroupName="ij"/>
                 </StackPanel>
@@ -131,7 +131,11 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <Button x:Name="CloseButton" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Click="CloseButton_Click" VerticalAlignment="Center" Margin="0,5,0,10">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,10" Cursor="Hand">
+                <Button x:Name="VideoOptionsButton" Content="VideoOptions" Margin="0,0,10,0"/>
+                <Button x:Name="AudioOptionsButton" Content="AudioOptions" Margin="10,0,10,0"/>
+            </StackPanel>
+            <Button x:Name="CloseButton" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" Click="CloseButton_Click" VerticalAlignment="Center" Margin="0,5,0,10" Cursor="Hand">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconVaadinIcons Kind="Exit" />
                     <TextBlock Text="Exit"/>
