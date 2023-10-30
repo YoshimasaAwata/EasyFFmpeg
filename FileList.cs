@@ -48,8 +48,6 @@ namespace EasyFFmpeg
         };
         /// <value>変換先拡張子</value>
         public string Extension { get; set; } = ".mp4";
-        /// <value>変換のためのプロセス</value>
-        protected Process? ffmpeg = null;
 
         /// <summary>
         /// 変換元ファイルをセット
@@ -139,7 +137,7 @@ namespace EasyFFmpeg
         /// 変換元ファイルは結合される
         /// </remarks>
         /// <returns>処理結果</returns>
-        public Code JoinFiles()
+        public async Task<Code> JoinFiles()
         {
             Code result = Code.OK;
 
@@ -155,10 +153,10 @@ namespace EasyFFmpeg
                 var ffmpeg = Process.Start(info);
                 if (ffmpeg != null)
                 {
-                    ffmpeg.WaitForExit();
+                    await ffmpeg.WaitForExitAsync();
                     if (ffmpeg.ExitCode != 0)
                     {
-                        if (ffmpeg.ExitCode == 255)
+                        if ((ffmpeg.ExitCode == -1073741510) || (ffmpeg.ExitCode == 255))
                         {
                             Message = "変換がキャンセルされました。";
                             result = Code.Cancel;
@@ -240,7 +238,7 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="index">変換する要素のインデックス</param>
         /// <returns>処理結果</returns>
-        public Code ConvertFiles(Int32 index)
+        public async Task<Code> ConvertFiles(Int32 index)
         {
             Code result = Code.OK;
             //            int fileCount = 0;
@@ -258,11 +256,11 @@ namespace EasyFFmpeg
                 var ffmpeg = Process.Start(info);
                 if (ffmpeg != null)
                 {
-                    ffmpeg.WaitForExit();
+                    await ffmpeg.WaitForExitAsync();
                     if (ffmpeg.ExitCode != 0)
                     {
                         Message = Path.GetFileName(file);
-                        if (ffmpeg.ExitCode == 255)
+                        if ((ffmpeg.ExitCode == -1073741510) || (ffmpeg.ExitCode == 255))
                         {
                             Message += "の変換がキャンセルされました。";
                             result = Code.Cancel;
@@ -335,7 +333,7 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="index">移動する要素のインデックス</param>
         /// <returns>処理結果</returns>
-        public Code PlayFile(Int32 index)
+        public async Task<Code> PlayFile(Int32 index)
         {
             Code result = Code.OK;
 
@@ -349,10 +347,10 @@ namespace EasyFFmpeg
 
             try
             {
-                ffmpeg = Process.Start(info);
+                var ffmpeg = Process.Start(info);
                 if (ffmpeg != null)
                 {
-                    ffmpeg.WaitForExit();
+                    await ffmpeg.WaitForExitAsync();
                     ffmpeg = null;
                 }
             }
@@ -409,18 +407,6 @@ namespace EasyFFmpeg
             }
 
             return info;
-        }
-
-        /// <summary>
-        /// ファイルの変換を中断
-        /// </summary>
-        public void CancelFFmpeg()
-        {
-            if (ffmpeg != null)
-            {
-                ffmpeg.Kill(true);
-                ffmpeg = null;
-            }
         }
     }
 }

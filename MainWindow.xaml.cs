@@ -148,11 +148,29 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// 条件なしでアイテムを有効/無効化する
+        /// </summary>
+        /// <param name="enable">有効/無効</param>
+        private void EnableDefaultItems(bool enable)
+        {
+            AddButton.IsEnabled = enable;
+
+            ToButton.IsEnabled = enable;
+            ClearDirButton.IsEnabled = enable;
+            CloseButton.IsEnabled = enable;
+            ExtensionComboBox.IsEnabled = enable;
+            IndividualRadio.IsEnabled = enable;
+            JoinRadio.IsEnabled = enable;
+            AudioRadio.IsEnabled = enable;
+            VideoRadio.IsEnabled = enable;
+            FromListBox.IsEnabled = enable;
+        }
+
+        /// <summary>
         /// 各ボタンを使用不可にする
         /// </summary>
         private void DisableButtons()
         {
-            AddButton.IsEnabled = false;
             DeleteButton.IsEnabled = false;
             ClearButton.IsEnabled = false;
             UpButton.IsEnabled = false;
@@ -160,6 +178,8 @@ namespace EasyFFmpeg
             ConvButton.IsEnabled = false;
             PlayButton.IsEnabled = false;
             InfoButton.IsEnabled = false;
+
+            EnableDefaultItems(false);
         }
 
         /// <summary>
@@ -170,7 +190,6 @@ namespace EasyFFmpeg
             var enable_sel = (FromListBox.SelectedIndex >= 0);
             var enable = (FromListBox.Items.Count > 0);
 
-            AddButton.IsEnabled = true;
             DeleteButton.IsEnabled = enable_sel;
             ClearButton.IsEnabled = enable;
             UpButton.IsEnabled = (FromListBox.SelectedIndex > 0);
@@ -178,6 +197,8 @@ namespace EasyFFmpeg
             ConvButton.IsEnabled = enable;
             PlayButton.IsEnabled = enable_sel;
             InfoButton.IsEnabled = enable_sel;
+
+            EnableDefaultItems(true);
         }
 
         /// <summary>
@@ -196,7 +217,7 @@ namespace EasyFFmpeg
                 for (int i = 0; i < count; i++)
                 {
                     var file = fileList.FileNameList[i];
-                    var result = fileList.ConvertFiles(i);
+                    var result = await fileList.ConvertFiles(i);
                     if (result != FileList.Code.OK)
                     {
                         var message = fileList.Message + "\n変換を続けますか？";
@@ -212,7 +233,7 @@ namespace EasyFFmpeg
             }
             else // (JoinRadio.IsChecked == true)
             {
-                var result = fileList.JoinFiles();
+                var result = await fileList.JoinFiles();
                 if (result != FileList.Code.OK)
                 {
                     var type = (result == FileList.Code.NG) ? ErrorDialog.Type.Error : ErrorDialog.Type.Warning;
@@ -232,10 +253,6 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (executing)
-            {
-                fileList.CancelFFmpeg();
-            }
             Application.Current.Shutdown();
         }
 
@@ -374,7 +391,7 @@ namespace EasyFFmpeg
         {
             DisableButtons();
             executing = true;
-            var rc = fileList.PlayFile(FromListBox.SelectedIndex);
+            var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
             executing = false;
             if (rc == FileList.Code.NG)
             {
