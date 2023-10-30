@@ -85,7 +85,7 @@ namespace EasyFFmpeg
         {
             var name = Path.GetFileNameWithoutExtension(fromFileName);
             var path = (TargetDir == "") ? Path.GetDirectoryName(fromFileName) : TargetDir;
-            return $"{path}\\{name}{Extension}";
+            return $"\"{path}\\{name}{Extension}\"";
         }
 
         /// <summary>
