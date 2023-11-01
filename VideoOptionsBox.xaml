@@ -45,22 +45,24 @@
                         </StackPanel>
                         <StackPanel x:Name="SizeAspectStack" Margin="0,5,0,5" Orientation="Horizontal" >
                             <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
-                            <Label Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
+                            <Label x:Name="SizeLabel" Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
                             <ComboBox x:Name="SizeCombo" IsEnabled="False" />
                             <CheckBox x:Name="AspectCheck" Content=": アスペクト比指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="10,0,0,5" />
-                            <Label Content="アスペクト比: " Margin="0,0,5,0" IsEnabled="False" />
+                            <Label x:Name="AspectLabel" Content="アスペクト比: " Margin="0,0,5,0" IsEnabled="False" />
                             <ComboBox x:Name="AspectCombo" IsEnabled="False" />
                         </StackPanel>
                         <CheckBox x:Name="Bitrate1stCheck" Content=": ビットレート優先" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
                         <DockPanel x:Name="AveBitrateDock" Margin="0,5,0,5" IsEnabled="False">
                             <Label Content="平均ビットレート: " Margin="0,0,5,0"/>
-                            <TextBox x:Name="AveBitrateText" Width="100" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
-                            <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" />
+                            <TextBox x:Name="AveBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
+                            <Label Content="Mbps" Margin="0,0,5,0" />
+                            <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" Minimum="1" Maximum="300" />
                         </DockPanel>
                         <DockPanel x:Name="MaxBitrateDock" Margin="0,5,0,0" IsEnabled="False">
                             <Label Content="最大ビットレート: " Margin="0,0,5,0"/>
-                            <TextBox x:Name="MaxBitrateText" Width="100" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
-                            <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" />
+                            <TextBox x:Name="MaxBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
+                            <Label Content="Mbps" Margin="0,0,5,0" />
+                            <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" Maximum="300" Minimum="1" />
                         </DockPanel>
                     </StackPanel>
                 </GroupBox>

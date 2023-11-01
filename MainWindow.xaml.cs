@@ -37,19 +37,17 @@ namespace EasyFFmpeg
         }
 
         /// <value>リストボックスに表示するファイル名のリスト</value>
-        private FileList fileList = new FileList();
+        private FileList _fileList = new FileList();
         /// <value>ビデオ出力の拡張子の選択されたインデックス</value>
-        private int videoOutputSelectedIndex = 0;
+        private int _videoOutputSelectedIndex = 0;
         /// <value>オーディオ出力の拡張子の選択されたインデックス</value>
-        private int audioOutputSelectedIndex = 0;
-        /// <value>FFmpegを実行中かどうか</value>
-        private bool executing = false;
+        private int _audioOutputSelectedIndex = 0;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            FromListBox.ItemsSource = fileList.FileNameList;
+            FromListBox.ItemsSource = _fileList.FileNameList;
             SetOutputExtensions(AV.Video);
         }
 
@@ -63,13 +61,13 @@ namespace EasyFFmpeg
             {
                 if (type == AV.Audio)
                 {
-                    ExtensionComboBox.ItemsSource = fileList.AudioExtensions;
-                    ExtensionComboBox.SelectedIndex = audioOutputSelectedIndex;
+                    ExtensionComboBox.ItemsSource = _fileList.AudioExtensions;
+                    ExtensionComboBox.SelectedIndex = _audioOutputSelectedIndex;
                 }
                 else // (type == AV.Video)
                 {
-                    ExtensionComboBox.ItemsSource = fileList.VideoExtensions;
-                    ExtensionComboBox.SelectedIndex = videoOutputSelectedIndex;
+                    ExtensionComboBox.ItemsSource = _fileList.VideoExtensions;
+                    ExtensionComboBox.SelectedIndex = _videoOutputSelectedIndex;
                 }
             }
         }
@@ -88,7 +86,7 @@ namespace EasyFFmpeg
             })
             {
                 string extensions = "";
-                foreach (var ext in fileList.VideoExtensions)
+                foreach (var ext in _fileList.VideoExtensions)
                 {
                     extensions += $"*{ext},";
                 }
@@ -97,7 +95,7 @@ namespace EasyFFmpeg
                 if (AudioRadio.IsChecked == true)
                 {
                     extensions = "";
-                    foreach (var ext in fileList.AudioExtensions)
+                    foreach (var ext in _fileList.AudioExtensions)
                     {
                         extensions += $"*{ext},";
                     }
@@ -108,7 +106,7 @@ namespace EasyFFmpeg
 
                 if (openFolderDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    fileList.SetSourceFiles(openFolderDialog.FileNames);
+                    _fileList.SetSourceFiles(openFolderDialog.FileNames);
                     EnableButtons();
                 }
             }
@@ -131,7 +129,7 @@ namespace EasyFFmpeg
                 {
                     var targetDir = openFolderDialog.FileName;
                     ToTextBox.Text = targetDir;
-                    fileList.TargetDir = targetDir;
+                    _fileList.TargetDir = targetDir;
                 }
             }
         }
@@ -144,7 +142,7 @@ namespace EasyFFmpeg
         private void ClearDirButton_Click(object sender, RoutedEventArgs e)
         {
             ToTextBox.Clear();
-            fileList.TargetDir = "";
+            _fileList.TargetDir = "";
         }
 
         /// <summary>
@@ -210,17 +208,17 @@ namespace EasyFFmpeg
         {
             DisableButtons();
 
-            var count = fileList.FileNameList.Count;
+            var count = _fileList.FileNameList.Count;
 
-            if ((IndividualRadio.IsChecked == true) || (fileList.FileNameList.Count == 1))
+            if ((IndividualRadio.IsChecked == true) || (_fileList.FileNameList.Count == 1))
             {
                 for (int i = 0; i < count; i++)
                 {
-                    var file = fileList.FileNameList[i];
-                    var result = await fileList.ConvertFiles(i);
+                    var file = _fileList.FileNameList[i];
+                    var result = await _fileList.ConvertFiles(i);
                     if (result != FileList.Code.OK)
                     {
-                        var message = fileList.Message + "\n変換を続けますか？";
+                        var message = _fileList.Message + "\n変換を続けますか？";
                         var type = (result == FileList.Code.NG) ? ErrorDialog.Type.Error : ErrorDialog.Type.Warning;
                         var dialog = new ErrorDialog(message, type, ErrorDialog.ButtonType.YesNo);
                         var yesno = await DialogHost.Show(dialog) as bool?;
@@ -233,11 +231,11 @@ namespace EasyFFmpeg
             }
             else // (JoinRadio.IsChecked == true)
             {
-                var result = await fileList.JoinFiles();
+                var result = await _fileList.JoinFiles();
                 if (result != FileList.Code.OK)
                 {
                     var type = (result == FileList.Code.NG) ? ErrorDialog.Type.Error : ErrorDialog.Type.Warning;
-                    await DialogHost.Show(new ErrorDialog(fileList.Message, type));
+                    await DialogHost.Show(new ErrorDialog(_fileList.Message, type));
                 }
             }
 
@@ -276,13 +274,13 @@ namespace EasyFFmpeg
         {
             if (VideoRadio.IsChecked == true)
             {
-                videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                fileList.Extension = fileList.VideoExtensions[videoOutputSelectedIndex];
+                _videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
+                _fileList.Extension = _fileList.VideoExtensions[_videoOutputSelectedIndex];
             }
             else    // (AudioRadio.IsChecked == true)
             {
-                audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                fileList.Extension = fileList.AudioExtensions[audioOutputSelectedIndex];
+                _audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
+                _fileList.Extension = _fileList.AudioExtensions[_audioOutputSelectedIndex];
             }
         }
 
@@ -304,7 +302,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            fileList.DeleteElement(FromListBox.SelectedIndex);
+            _fileList.DeleteElement(FromListBox.SelectedIndex);
             FromListBox.Items.Refresh();
             EnableButtons();
         }
@@ -321,7 +319,7 @@ namespace EasyFFmpeg
             bool? result = await DialogHost.Show(dialog) as bool?;
             if (result == true)
             {
-                fileList.FileNameList.Clear();
+                _fileList.FileNameList.Clear();
             }
             EnableButtons();
         }
@@ -337,7 +335,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void UpButton_Click(object sender, RoutedEventArgs e)
         {
-            fileList.UpElement(FromListBox.SelectedIndex);
+            _fileList.UpElement(FromListBox.SelectedIndex);
             FromListBox.Items.Refresh();
             EnableButtons();
         }
@@ -353,7 +351,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void DownButton_Click(object sender, RoutedEventArgs e)
         {
-            fileList.DownElement(FromListBox.SelectedIndex);
+            _fileList.DownElement(FromListBox.SelectedIndex);
             FromListBox.Items.Refresh();
             EnableButtons();
         }
@@ -390,12 +388,10 @@ namespace EasyFFmpeg
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             DisableButtons();
-            executing = true;
-            var rc = await fileList.PlayFile(FromListBox.SelectedIndex);
-            executing = false;
+            var rc = await _fileList.PlayFile(FromListBox.SelectedIndex);
             if (rc == FileList.Code.NG)
             {
-                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
+                await DialogHost.Show(new ErrorDialog(_fileList.Message, ErrorDialog.Type.Warning));
             }
             EnableButtons();
         }
@@ -408,12 +404,10 @@ namespace EasyFFmpeg
         private async void InfoButton_Click(object sender, RoutedEventArgs e)
         {
             DisableButtons();
-            executing = true;
-            var info = fileList.GetFileInfo(FromListBox.SelectedIndex);
-            executing = false;
+            var info = _fileList.GetFileInfo(FromListBox.SelectedIndex);
             if ((info == null) || (info == ""))
             {
-                await DialogHost.Show(new ErrorDialog(fileList.Message, ErrorDialog.Type.Warning));
+                await DialogHost.Show(new ErrorDialog(_fileList.Message, ErrorDialog.Type.Warning));
             }
             else
             {
@@ -443,6 +437,11 @@ namespace EasyFFmpeg
             SetOutputExtensions(AV.Audio);
         }
 
+        /// <summary>
+        /// リストボックス上にドラッグした時にカーソルを変更
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FromListBox_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -456,6 +455,11 @@ namespace EasyFFmpeg
             e.Handled = true;
         }
 
+        /// <summary>
+        /// リストボックスにドロップをした時にファイルならリストに追加
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FromListBox_Drop(object sender, DragEventArgs e)
         {
             var dropFiles = e.Data.GetData(DataFormats.FileDrop) as string[];
@@ -465,11 +469,20 @@ namespace EasyFFmpeg
             {
                 if (File.Exists(file))
                 {
-                    fileList.AddSourceFile(file);
+                    _fileList.AddSourceFile(file);
                 }
             }
 
             EnableButtons();
+        }
+
+        /// <summary>
+        /// ビデオオプションのダイアログを表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void VideoOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

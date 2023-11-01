@@ -57,11 +57,38 @@ namespace EasyFFmpeg
         private static readonly string[] s_aspectList = {"4:3", "16:9",};
 
         /// <param name="extension">出力ファイルの拡張子</param>
-        public VideoOptionsBox(string extension)
+        public VideoOptionsBox(VideoOptions options)
         {
             InitializeComponent();
 
-            SetEncoders(extension);
+            var codec = s_codecDic[options.OutputExtension];
+            var encoderList = s_encoderDic[codec];
+
+            HWDecoderCheck.IsChecked = options.UseHWAccel;
+            CopyCheck.IsChecked = options.CopyVideo;
+            EncoderStack.IsEnabled = (encoderList.Length > 1);
+            EncoderCheck.IsChecked = options.SpecifyEncoder;
+            EncoderLabel.IsEnabled = options.SpecifyEncoder;
+            EncoderCombo.IsEnabled = options.SpecifyEncoder;
+            EncoderCombo.ItemsSource = encoderList;
+            EncoderCombo.SelectedIndex = (options.Encoder == "") ? 0 : Array.IndexOf(encoderList, options.Encoder);
+            SizeCheck.IsEnabled = options.SpecifySize;
+            SizeLabel.IsEnabled = options.SpecifySize;
+            SizeCombo.IsEnabled = options.SpecifySize;
+            SizeCombo.ItemsSource = s_sizeList;
+            SizeCombo.SelectedIndex = (options.Size == "") ? 0 : Array.IndexOf(s_sizeList, options.Size);
+            AspectCheck.IsEnabled = options.SpecifyAspect;
+            AspectLabel.IsEnabled = options.SpecifyAspect;
+            AspectCombo.IsEnabled = options.SpecifyAspect;
+            AspectCombo.ItemsSource= s_aspectList;
+            AspectCombo.SelectedIndex = (options.Aspect == "") ? 0 : Array.IndexOf(s_aspectList, options.Aspect);
+            Bitrate1stCheck.IsEnabled = options.SetBitrate;
+            AveBitrateDock.IsEnabled = options.SetBitrate;
+            MaxBitrateDock.IsEnabled = options.SetBitrate;
+            AveBitrateText.Text = options.AveBitrate.ToString();
+            MaxBitrateText.Text = options.MaxBitrate.ToString();
+            AveBitrateSlider.Value = options.AveBitrate;
+            MaxBitrateSlider.Value = options.MaxBitrate;
 
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
