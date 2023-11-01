@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,25 +21,62 @@ namespace EasyFFmpeg
     /// </summary>
     public partial class VideoOptionsBox : Window
     {
-        /// <value>拡張子とビデオのコーデック、エンコーダーの辞書</value>
-        private static readonly Dictionary<string, CodecLibPair> videoDic = new Dictionary<string, CodecLibPair>()
+        /// <value>拡張子とビデオのコーデックの辞書</value>
+        private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
         {
-            {".mp4", new CodecLibPair("h264", new []{ "libx264", "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv"})},
-            {".asf", new CodecLibPair("msmpeg4v3", new []{"msmpeg4"})},
-            {".avi", new CodecLibPair("mpeg4", new []{"mpeg4", "libxvid"})},
-            {".swf", new CodecLibPair("flv1", new []{"flv"})},
-            {".mkv", new CodecLibPair("h264", new []{ "libx264", "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv"})},
-            {".mov", new CodecLibPair("h264", new []{ "libx264", "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv"})},
-            {".ogg", new CodecLibPair("theora", new []{"libtheora"})},
-            {".ts", new CodecLibPair("mpeg2video", new []{"mpeg2video", "mpeg2_qsv"})},
-            {".webm", new CodecLibPair("vp9", new []{"libvpx-vp9", "vp9_qsv"})},
+            {".mp4", "h264"},
+            {".asf", "msmpeg4v3"},
+            {".avi", "mpeg4"},
+            {".swf", "flv1"},
+            {".mkv", "h264"},
+            {".mov", "h264"},
+            {".ogg", "theora"},
+            {".ts", "mpeg2video"},
+            {".webm", "vp9"},
         };
 
-        public VideoOptionsBox()
+        /// <value>ビデオのコーデック、エンコーダーの辞書</value>
+        private static readonly Dictionary<string, string[]> s_encoderDic = new Dictionary<string, string[]>()
+        {
+            {"h264", new []{ "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv", "libx264", }},
+            {"msmpeg4v3", new []{"msmpeg4", }},
+            {"mpeg4", new []{"mpeg4", "libxvid", }},
+            {"flv1", new []{"flv", }},
+            {"theora", new []{"libtheora", }},
+            {"mpeg2video", new []{"mpeg2video", "mpeg2_qsv", }},
+            {"vp9", new []{"libvpx-vp9", "vp9_qsv", }},
+        };
+
+        /// <value>スクリーンサイズ</value>
+        private static readonly string[] s_sizeList = 
+        {
+            "320x240", "640x480", "720x480", "800x600", "1024x768", "1280x720", "1280x960", "1440x1080", "1600x1200", "1920x1080", "2560x1440", "3840x2160", "7680x4320",
+        };
+
+        /// <value>アスペクト比</value>
+        private static readonly string[] s_aspectList = {"4:3", "16:9",};
+
+        /// <param name="extension">出力ファイルの拡張子</param>
+        public VideoOptionsBox(string extension)
         {
             InitializeComponent();
 
+            SetEncoders(extension);
+
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+
+        /// <summary>
+        /// 拡張子の変更時にエンコーダーリストのアップデートと有効/無効をセット
+        /// </summary>
+        /// <param name="extension">出力ファイルの拡張子</param>
+        public void SetEncoders(string extension)
+        {
+            var codec = s_codecDic[extension];
+            var encoderList = s_encoderDic[codec];
+            EncoderCombo.ItemsSource = encoderList;
+            EncoderCombo.SelectedIndex = 0;
+            EncoderStack.IsEnabled = (encoderList.Length > 1);
         }
 
         /// <summary>
@@ -88,6 +126,28 @@ namespace EasyFFmpeg
             {
                 e.Handled = true;
             }
+        }
+
+        /// <summary>
+        /// エンコーダーの選択肢を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EncoderCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            EncoderLabel.IsEnabled = true;
+            EncoderCombo.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// エンコーダーの選択肢を無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EncoderCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            EncoderLabel.IsEnabled = false;
+            EncoderCombo.IsEnabled = false;
         }
     }
 }

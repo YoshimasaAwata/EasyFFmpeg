@@ -35,7 +35,7 @@ namespace EasyFFmpeg
         }
 
         /// <value>使用しているNuGetパッケージのリスト</value>
-        private static readonly ReadOnlyObservableCollection<Package> Packages = new ReadOnlyObservableCollection<Package>(
+        private static readonly ReadOnlyObservableCollection<Package> s_packages = new ReadOnlyObservableCollection<Package>(
             new ObservableCollection<Package>() {
             new Package {Name = "WindowsAPICodePack-Core", License = "Custom", Url = "https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/LICENCE"},
             new Package {Name = "WindowsAPICodePack-Shell", License = "Custom", Url = "https://github.com/aybe/Windows-API-Code-Pack-1.1/blob/master/LICENCE"},
@@ -53,7 +53,7 @@ namespace EasyFFmpeg
         {
             InitializeComponent();
 
-            PackageList.ItemsSource = Packages;
+            PackageList.ItemsSource = s_packages;
             PackageList.SelectedIndex = 0;
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -104,7 +104,7 @@ namespace EasyFFmpeg
         {
             try
             {
-                var startInfo = new System.Diagnostics.ProcessStartInfo(Packages[PackageList.SelectedIndex].Url);
+                var startInfo = new System.Diagnostics.ProcessStartInfo(s_packages[PackageList.SelectedIndex].Url);
                 startInfo.UseShellExecute = true;
                 System.Diagnostics.Process.Start(startInfo);
                 AlartTextBox.Text = "";

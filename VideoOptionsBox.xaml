@@ -22,23 +22,48 @@
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid Margin="10,10,10,7">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="10,10,10,7">
                 <materialDesign:PackIcon Kind="ContentCopy" HorizontalAlignment="Center" VerticalAlignment="Center" Width="32" Height="32" Foreground="BlueViolet"/>
                 <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}" Text="EasyFFmpeg Video Options" Grid.Column="1" Margin="10,0,0,0" Foreground="BlueViolet"/>
-            </Grid>
-            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="10,0,10,0" >
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <Label Content="画像品質: " Margin="0,0,5,0"/>
-                    <RadioButton x:Name="DefaultQualityButton" Content="デフォルト" IsChecked="True" GroupName="Quality"/>
-                    <RadioButton x:Name="Quality1stButton" Content="画質優先" GroupName="Quality"/>
-                    <RadioButton x:Name="Rate1stButton" Content="ビットレート優先" GroupName="Quality"/>
-                    <TextBox x:Name="QualityText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted"/>
-                    <Slider x:Name="QualitySlider" Width="200" />
-                </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="10,0,10,0" >
+                <GroupBox x:Name="InputGroup" Margin="0,0,0,5" Header="デコーダー" >
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox x:Name="HWDecoderCheck" Content=": ハードウェアデコーダーを試す" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Label Content="(ハードウェアデコーダーは遅くなる場合があります)" />
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox x:Name="ConvGroup" Margin="0,5,0,5" Header="変換" >
+                    <CheckBox x:Name="CopyCheck" Content=": 可能ならば変換せずにコピー" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Left"/>
+                </GroupBox>
+                <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
+                    <StackPanel Margin="0,0,0,5">
+                        <StackPanel x:Name="EncoderStack" Margin="0,0,0,5" Orientation="Horizontal" IsEnabled="False" >
+                            <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
+                            <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
+                            <ComboBox x:Name="EncoderCombo" IsEnabled="False" />
+                        </StackPanel>
+                        <StackPanel x:Name="SizeAspectStack" Margin="0,5,0,5" Orientation="Horizontal" >
+                            <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
+                            <Label Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
+                            <ComboBox x:Name="SizeCombo" IsEnabled="False" />
+                            <CheckBox x:Name="AspectCheck" Content=": アスペクト比指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="10,0,0,5" />
+                            <Label Content="アスペクト比: " Margin="0,0,5,0" IsEnabled="False" />
+                            <ComboBox x:Name="AspectCombo" IsEnabled="False" />
+                        </StackPanel>
+                        <CheckBox x:Name="Bitrate1stCheck" Content=": ビットレート優先" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
+                        <DockPanel x:Name="AveBitrateDock" Margin="0,5,0,5" IsEnabled="False">
+                            <Label Content="平均ビットレート: " Margin="0,0,5,0"/>
+                            <TextBox x:Name="AveBitrateText" Width="100" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
+                            <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" />
+                        </DockPanel>
+                        <DockPanel x:Name="MaxBitrateDock" Margin="0,5,0,0" IsEnabled="False">
+                            <Label Content="最大ビットレート: " Margin="0,0,5,0"/>
+                            <TextBox x:Name="MaxBitrateText" Width="100" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="QualityText_PreviewTextInput" CommandManager.PreviewExecuted="QualityText_PreviewExecuted" Margin="5,0,5,0"/>
+                            <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" />
+                        </DockPanel>
+                    </StackPanel>
+                </GroupBox>
             </StackPanel>
             <Button x:Name="OKButton" Content="OK" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,10,10"
             Style="{StaticResource MaterialDesignRaisedLightButton}" Click="OKButton_Click"/>

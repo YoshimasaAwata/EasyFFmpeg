@@ -12,9 +12,9 @@ namespace EasyFFmpeg
     internal class CodecLibPair
     {
         /// <value>コーデック</value>
-        public string Codec;
+        public string Codec { get; set; }
         /// <value>コーデックのエンコード/デコードを行うライブラリのリスト</value>
-        public List<string> ExcoderLibraryList;
+        public List<string> ExcoderLibraryList { get; set; }
 
         /// <param name="codecName">コーデックの名前</param>
         /// <param name="encoders">エンコーダーのリスト</param>
