@@ -43,9 +43,9 @@ namespace EasyFFmpeg
         /// <value>CBR指定</value>
         public bool SetBitrate { get; set; } = false;
         /// <value>平均ビットレート</value>
-        public int AveBitrate { get; set; } = 0;
+        public int AveBitrate { get; set; } = 1;
         /// <value>最大ビットレート</value>
-        public int MaxBitrate { get; set; } = 0;
+        public int MaxBitrate { get; set; } = 1;
 
         /// <param name="Extension">出力ファイルの拡張子</param>
         public VideoOptions(string Extension) 

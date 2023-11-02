@@ -9,7 +9,7 @@ namespace EasyFFmpeg
     /// <summary>
     /// オーディオのオプション設定を保持
     /// </summary>
-    internal class AudioOptions
+    public class AudioOptions
     {
         /// <value>出力ファイルの拡張子</value>
         private string _outputExtension;
@@ -26,8 +26,12 @@ namespace EasyFFmpeg
         }
         /// <value>オーディオ変換時にコピーができればコピーする</value>
         public bool CopyAudio { get; set; } = true;
+        /// <value>エンコーダーを指定する</value>
+        public bool SpecifyEncoder { get; set; } = false;
+        /// <value>使用するエンコーダー</value>
+        public string Encoder { get; set; } = "";
         /// <value>チャンネル指定</value>
-        public string Channel { get; set; } = "";
+        public int Channel { get; set; } = 0;   // 0:default, 1:mono, 2:stereo
         /// <value>サンプリングレートを指定する</value>
         public bool SpecifySampling { get; set; } = false;
         /// <value>サンプリングレート</value>
@@ -49,7 +53,9 @@ namespace EasyFFmpeg
         public void Initialize()
         {
             CopyAudio = true;
-            Channel = "";
+            SpecifyEncoder = false;
+            Encoder = "";
+            Channel = 0;
             SpecifySampling = false;
             Sampling = "";
             SetBitrate = false;

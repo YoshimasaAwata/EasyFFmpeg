@@ -32,7 +32,12 @@
                 </GroupBox>
                 <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
                     <StackPanel Margin="0,0,0,5">
-                        <StackPanel x:Name="ChannelStack" Orientation="Horizontal" Margin="0,0,0,5" >
+                        <StackPanel x:Name="EncoderStack" Orientation="Horizontal" IsEnabled="False" >
+                            <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
+                            <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
+                            <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
+                        </StackPanel>
+                        <StackPanel x:Name="ChannelStack" Orientation="Horizontal" Margin="-5,5,0,5" >
                             <Label Content="チャンネル指定: "/>
                             <RadioButton x:Name="ChannelDefaultRadio" Content="デフォルト" IsChecked="True" Padding="0,0,5,0" GroupName="ChannelGroup" />
                             <RadioButton x:Name="ChannelMonoRadio" Content="モノラル" Padding="0,0,5,0" GroupName="ChannelGroup" />
@@ -40,12 +45,12 @@
                         </StackPanel>
                         <StackPanel x:Name="SamplingStack" Margin="0,5,0,5" Orientation="Horizontal" >
                             <CheckBox x:Name="SamplingCheck" Content=": サンプリングレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
-                            <Label Content="サンプリングレート: " Margin="0,0,5,0" IsEnabled="False" />
+                            <Label x:Name="SamplingLabel" Content="サンプリングレート: " Margin="0,0,5,0" IsEnabled="False" />
                             <ComboBox x:Name="SamplingCombo" IsEnabled="False" />
                         </StackPanel>
                         <StackPanel x:Name="BitrateStack" Margin="0,5,0,5" Orientation="Horizontal" IsEnabled="False" >
                             <CheckBox x:Name="BitrateCheck" Content=": ビットレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
-                            <Label Content="ビットレート: " Margin="0,0,5,0" IsEnabled="False" />
+                            <Label x:Name="BitrateLabel" Content="ビットレート: " Margin="0,0,5,0" IsEnabled="False" />
                             <ComboBox x:Name="BitrateCombo" IsEnabled="False" />
                         </StackPanel>
                     </StackPanel>
