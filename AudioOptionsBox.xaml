@@ -14,7 +14,7 @@
         FontFamily="{materialDesign:MaterialDesignFont}"
         WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        Title="AudioOptionsBox" Height="480" Width="600">
+        Title="AudioOptionsBox" Height="400" Width="600">
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10,10,10,10" Background="White">
         <Grid>
             <Grid.RowDefinitions>
@@ -28,7 +28,7 @@
             </StackPanel>
             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="10,0,10,0" >
                 <GroupBox x:Name="ConvGroup" Margin="0,5,0,5" Header="変換" >
-                    <CheckBox x:Name="CopyCheck" Content=": 可能ならば変換せずにコピー" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Left"/>
+                    <CheckBox x:Name="CopyCheck" Content=": 可能ならば変換せずにコピー" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="CopyCheck_Checked" Unchecked="CopyCheck_Unchecked"/>
                 </GroupBox>
                 <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
                     <StackPanel Margin="0,0,0,5">
@@ -39,19 +39,19 @@
                         </StackPanel>
                         <StackPanel x:Name="ChannelStack" Orientation="Horizontal" Margin="-5,5,0,5" >
                             <Label Content="チャンネル指定: "/>
-                            <RadioButton x:Name="ChannelDefaultRadio" Content="デフォルト" IsChecked="True" Padding="0,0,5,0" GroupName="ChannelGroup" />
-                            <RadioButton x:Name="ChannelMonoRadio" Content="モノラル" Padding="0,0,5,0" GroupName="ChannelGroup" />
-                            <RadioButton x:Name="ChannelStereoRadio" Content="ステレオ" Padding="0,0,5,0" GroupName="ChannelGroup" />
+                            <RadioButton x:Name="ChannelDefaultRadio" Content="デフォルト" IsChecked="True" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelDefaultRadio_Checked" />
+                            <RadioButton x:Name="ChannelMonoRadio" Content="モノラル" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelMonoRadio_Checked" />
+                            <RadioButton x:Name="ChannelStereoRadio" Content="ステレオ" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelStereoRadio_Checked" />
                         </StackPanel>
                         <StackPanel x:Name="SamplingStack" Margin="0,5,0,5" Orientation="Horizontal" >
-                            <CheckBox x:Name="SamplingCheck" Content=": サンプリングレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
+                            <CheckBox x:Name="SamplingCheck" Content=": サンプリングレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="SamplingCheck_Checked" Unchecked="SamplingCheck_Unchecked" />
                             <Label x:Name="SamplingLabel" Content="サンプリングレート: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="SamplingCombo" IsEnabled="False" />
+                            <ComboBox x:Name="SamplingCombo" IsEnabled="False" SelectionChanged="SamplingCombo_SelectionChanged" />
                         </StackPanel>
                         <StackPanel x:Name="BitrateStack" Margin="0,5,0,5" Orientation="Horizontal" IsEnabled="False" >
-                            <CheckBox x:Name="BitrateCheck" Content=": ビットレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" />
+                            <CheckBox x:Name="BitrateCheck" Content=": ビットレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="BitrateCheck_Checked" Unchecked="BitrateCheck_Unchecked" />
                             <Label x:Name="BitrateLabel" Content="ビットレート: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="BitrateCombo" IsEnabled="False" />
+                            <ComboBox x:Name="BitrateCombo" IsEnabled="False" SelectionChanged="BitrateCombo_SelectionChanged" />
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

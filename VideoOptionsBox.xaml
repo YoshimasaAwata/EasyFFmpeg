@@ -14,7 +14,7 @@
         FontFamily="{materialDesign:MaterialDesignFont}"
         WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        Title="VideoOptionsBox" Height="480" Width="600">
+        Title="VideoOptionsBox" Height="500" Width="600">
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10,10,10,10" Background="White">
         <Grid>
             <Grid.RowDefinitions>
@@ -38,19 +38,38 @@
                 </GroupBox>
                 <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
                     <StackPanel Margin="0,0,0,5">
-                        <StackPanel x:Name="EncoderStack" Margin="0,0,0,5" Orientation="Horizontal" IsEnabled="False" >
-                            <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
-                            <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
-                        </StackPanel>
-                        <StackPanel x:Name="SizeAspectStack" Margin="0,5,0,5" Orientation="Horizontal" >
-                            <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="SizeCheck_Checked" Unchecked="SizeCheck_Unchecked" />
-                            <Label x:Name="SizeLabel" Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="SizeCombo" IsEnabled="False" SelectionChanged="SizeCombo_SelectionChanged" />
-                            <CheckBox x:Name="AspectCheck" Content=": アスペクト比指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="10,0,0,5" Checked="AspectCheck_Checked" Unchecked="AspectCheck_Unchecked" />
-                            <Label x:Name="AspectLabel" Content="アスペクト比: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="AspectCombo" IsEnabled="False" SelectionChanged="AspectCombo_SelectionChanged" />
-                        </StackPanel>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel x:Name="EncoderStack" Orientation="Horizontal" IsEnabled="False" Grid.ColumnSpan="2" >
+                                <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
+                                <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
+                            </StackPanel>
+                            <StackPanel x:Name="FramerateStack" Grid.Column="1" Orientation="Horizontal">
+                                <CheckBox x:Name="FramerateCheck" Content=": フレームレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="FramerateCheck_Checked" Unchecked="FramerateCheck_Unchecked" />
+                                <Label x:Name="FramerateLabel" Content="フレームレート: " IsEnabled="False" />
+                                <ComboBox x:Name="FramerateCombo" IsEnabled="False" SelectionChanged="FramerateCombo_SelectionChanged" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel x:Name="SizeStack" Orientation="Horizontal" >
+                                <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="SizeCheck_Checked" Unchecked="SizeCheck_Unchecked" />
+                                <Label x:Name="SizeLabel" Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="SizeCombo" IsEnabled="False" SelectionChanged="SizeCombo_SelectionChanged" />
+                            </StackPanel>
+                            <StackPanel x:Name="AspectStack" Orientation="Horizontal" Grid.ColumnSpan="2" Grid.Column="1" >
+                                <CheckBox x:Name="AspectCheck" Content=": アスペクト比指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="AspectCheck_Checked" Unchecked="AspectCheck_Unchecked" />
+                                <Label x:Name="AspectLabel" Content="アスペクト比: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="AspectCombo" IsEnabled="False" SelectionChanged="AspectCombo_SelectionChanged" />
+                            </StackPanel>
+                        </Grid>
                         <StackPanel Margin="0,5,0,5">
                             <CheckBox x:Name="Bitrate1stCheck" Content=": ビットレート優先" FlowDirection="RightToLeft" Checked="Bitrate1stCheck_Checked" Unchecked="Bitrate1stCheck_Unchecked" HorizontalAlignment="Left" Margin="0,0,0,5" />
                             <Label x:Name="StatusLabel" Margin="5,0,0,0" Foreground="Red"/>

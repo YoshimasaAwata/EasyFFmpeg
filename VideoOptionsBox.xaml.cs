@@ -47,6 +47,9 @@ namespace EasyFFmpeg
             {"vp9", new []{"libvpx-vp9", "vp9_qsv", }},
         };
 
+        /// <value>アスペクト比</value>
+        private static readonly string[] s_framerateList = {"24", "30000/1001", "30", "50", "60000/1001", "60", "120", "240"};
+
         /// <value>スクリーンサイズ</value>
         private static readonly string[] s_sizeList = 
         {
@@ -70,9 +73,9 @@ namespace EasyFFmpeg
             InitializeComponent();
 
             _options = options;
+            _options.Codec = s_codecDic[options.OutputExtension];
 
-            var codec = s_codecDic[options.OutputExtension];
-            var encoderList = s_encoderDic[codec];
+            var encoderList = s_encoderDic[_options.Codec];
 
             HWDecoderCheck.IsChecked = options.UseHWAccel;
             CopyCheck.IsChecked = options.CopyVideo;
@@ -82,6 +85,11 @@ namespace EasyFFmpeg
             EncoderCombo.IsEnabled = options.SpecifyEncoder;
             EncoderCombo.ItemsSource = encoderList;
             EncoderCombo.SelectedIndex = (options.Encoder == "") ? -1 : Array.IndexOf(encoderList, options.Encoder);
+            FramerateCheck.IsEnabled = options.SpecifyFramerate;
+            FramerateLabel.IsEnabled = options.SpecifyFramerate;
+            FramerateCombo.IsEnabled = options.SpecifyFramerate;
+            FramerateCombo.ItemsSource = s_framerateList;
+            FramerateCombo.SelectedIndex = (options.Framerate == "") ? -1 : Array.IndexOf(s_framerateList, options.Framerate);
             SizeCheck.IsEnabled = options.SpecifySize;
             SizeLabel.IsEnabled = options.SpecifySize;
             SizeCombo.IsEnabled = options.SpecifySize;
@@ -439,6 +447,25 @@ namespace EasyFFmpeg
             _options.MaxBitrate = bitrate;
             MaxBitrateText.Text = bitrate.ToString();
             StatusLabel.Content = "";
+        }
+
+        private void FramerateCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyFramerate = true;
+            FramerateLabel.IsEnabled = true;
+            FramerateCombo.IsEnabled = true;
+        }
+
+        private void FramerateCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyFramerate = false;
+            FramerateLabel.IsEnabled = false;
+            FramerateCombo.IsEnabled = false;
+        }
+
+        private void FramerateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _options.Framerate = FramerateCombo.Text;
         }
     }
 }

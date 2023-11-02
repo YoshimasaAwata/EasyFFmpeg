@@ -47,7 +47,30 @@ namespace EasyFFmpeg
             ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".m4a", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
         };
         /// <value>変換先拡張子</value>
-        public string Extension { get; set; } = ".mp4";
+        private string _extension = ".mp4";
+        public string Extension 
+        { 
+            get => _extension; 
+            set
+            {
+                if (_extension != value)
+                {
+                    _extension = value;
+                    VideoOptions = new VideoOptions(value);
+                    AudioOptions = new AudioOptions(value);
+                }
+            }
+        }
+        /// <value>ビデオオプション</value>
+        public VideoOptions VideoOptions { get; set; }
+        /// <value>オーディオオプション</value>
+        public AudioOptions AudioOptions { get; set; }
+
+        public FileList()
+        {
+            VideoOptions = new VideoOptions(Extension);
+            AudioOptions = new AudioOptions(Extension);
+        }
 
         /// <summary>
         /// 変換元ファイルをセット

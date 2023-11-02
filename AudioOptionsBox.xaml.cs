@@ -130,5 +130,157 @@ namespace EasyFFmpeg
         {
             Close();
         }
+
+        /// <summary>
+        /// オーディオのコピーを有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CopyCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.CopyAudio = true;
+        }
+
+        /// <summary>
+        /// オーディオのコピーを無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CopyCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.CopyAudio = false;
+        }
+
+        /// <summary>
+        /// エンコーダーの選択肢を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EncoderCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyEncoder = true;
+            EncoderLabel.IsEnabled = true;
+            EncoderCombo.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// エンコーダーの選択肢を無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EncoderCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyEncoder = false;
+            EncoderLabel.IsEnabled = false;
+            EncoderCombo.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// エンコーダーの選択肢を保存する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EncoderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _options.Encoder = EncoderCombo.Text;
+        }
+
+        /// <summary>
+        /// エンコーダーのチャンネルを入力と同じとする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ChannelDefaultRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.Channel = 0;
+        }
+
+        /// <summary>
+        /// エンコーダーのチャンネルをモノラルとする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ChannelMonoRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.Channel = 1;
+        }
+
+        /// <summary>
+        /// エンコーダーのチャンネルをステレオとする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ChannelStereoRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.Channel = 2;
+        }
+
+        /// <summary>
+        /// サンプリングレートの選択肢を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SamplingCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifySampling = true;
+            SamplingLabel.IsEnabled = true;
+            SamplingCombo.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// サンプリングレートの選択肢を無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SamplingCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifySampling = false;
+            SamplingLabel.IsEnabled = false;
+            SamplingCombo.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// サンプリングレートの選択肢を保存する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SamplingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _options.Sampling = SamplingCombo.Text;
+        }
+
+        /// <summary>
+        /// ビットレートの選択肢を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BitrateCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.SetBitrate = true;
+            BitrateLabel.IsEnabled = true;
+            BitrateCombo.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// ビットレートの選択肢を無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BitrateCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.SetBitrate = false;
+            BitrateLabel.IsEnabled = false;
+            BitrateCombo.IsEnabled = false;
+        }
+
+        /// <summary>
+        /// ビットレートの選択肢を保存する
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BitrateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _options.Bitrate = BitrateCombo.Text;
+        }
     }
 }

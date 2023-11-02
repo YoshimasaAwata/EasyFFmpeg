@@ -28,10 +28,16 @@ namespace EasyFFmpeg
         public bool UseHWAccel { get; set; } = false;
         /// <value>ビデオ変換時にコピーができればコピーする</value>
         public bool CopyVideo { get; set; } = true;
+        /// <value>コーデックを指定する</value>
+        public string Codec { get; set; } = "";
         /// <value>エンコーダーを指定する</value>
         public bool SpecifyEncoder { get; set; } = false;
         /// <value>使用するエンコーダー</value>
         public string Encoder { get; set; } = "";
+        /// <value>フレームレート</value>
+        public bool SpecifyFramerate { get; set; } = false;
+        /// <value>フレームレート</value>
+        public string Framerate { get; set; } = "";
         /// <value>画像サイズを指定する</value>
         public bool SpecifySize { get; set; } = false;
         /// <value>画像サイズ(幅x高さ)</value>
@@ -60,8 +66,11 @@ namespace EasyFFmpeg
         {
             UseHWAccel = false;
             CopyVideo = true;
+            Codec = "";
             SpecifyEncoder = false;
             Encoder = "";
+            SpecifyFramerate = false;
+            Framerate = "";
             SpecifySize = false;
             Size = "";
             SpecifyAspect = false;
@@ -69,6 +78,35 @@ namespace EasyFFmpeg
             SetBitrate = false;
             AveBitrate = 0;
             MaxBitrate = 0;
+        }
+
+        public string CreateHWDecoderArgument()
+        {
+            return (UseHWAccel) ? "-hwaccel auto " : "";
+        }
+
+        /// <summary>
+        /// ビデオ出力をコピーとするための引数を作成
+        /// </summary>
+        /// <param name="info">入力ファイル情報</param>
+        /// <returns>ビデオ出力をコピーするための引数もしくは空文字</returns>
+        protected string CreateCopyArgument(FileInfo info)
+        {
+            bool allowCopy = CopyVideo;
+            allowCopy &= (info.VideoCodec == Codec);
+            allowCopy &= ((info.VideoWidth + "x" + info.VideoHeight) == Size);
+            allowCopy &= (info.VideoFrameRate == Framerate);
+            allowCopy &= (int.Parse(info.VideoBitRate) == AveBitrate);
+        }
+
+        /// <summary>
+        /// ビデオ出力の引数を作成
+        /// </summary>
+        /// <param name="info">入力ファイル情報</param>
+        /// <returns>ビデオ出力の引数</returns>
+        public string CreateArguments(FileInfo info)
+        {
+
         }
     }
 }

@@ -483,6 +483,19 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void VideoOptionsButton_Click(object sender, RoutedEventArgs e)
         {
+            var dialog = new VideoOptionsBox(_fileList.VideoOptions);
+            dialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// オーディオオプションのダイアログを表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AudioOptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new AudioOptionsBox(_fileList.AudioOptions);
+            dialog.ShowDialog();
         }
     }
 }
