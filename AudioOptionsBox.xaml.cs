@@ -66,7 +66,7 @@ namespace EasyFFmpeg
         /// <value>ビットレート</value>
         private static readonly string[] s_bitrateList =
         {
-            "64k", "96k", "128k", "160k", "192k", "256k", "320k", "512k",
+            "64k", "96k", "128k", "160k", "192k", "256k", "320k", "384k", "512k",
         };
 
         /// <value>オーディオのオプション</value>
@@ -75,12 +75,13 @@ namespace EasyFFmpeg
         /// <param name="options">オーディオのオプション</param>
         public AudioOptionsBox(AudioOptions options)
         {
-            InitializeComponent();
-
             _options = options;
 
-            var codec = s_codecDic[options.OutputExtension];
-            var encoderList = s_encoderDic[codec];
+            InitializeComponent();
+
+            _options.Codec = s_codecDic[options.OutputExtension];
+
+            var encoderList = s_encoderDic[_options.Codec];
 
             CopyCheck.IsChecked = _options.CopyAudio;
             EncoderStack.IsEnabled = (encoderList.Length > 1);
@@ -92,17 +93,19 @@ namespace EasyFFmpeg
             ChannelDefaultRadio.IsChecked = (options.Channel == 0);
             ChannelMonoRadio.IsChecked = (options.Channel == 1);
             ChannelStereoRadio.IsChecked= (options.Channel == 2);
-            SamplingCheck.IsEnabled = options.SpecifySampling;
+            SamplingCheck.IsChecked = options.SpecifySampling;
             SamplingLabel.IsEnabled = options.SpecifySampling;
             SamplingCombo.IsEnabled = options.SpecifySampling;
             SamplingCombo.ItemsSource = s_samplingList;
-            SamplingCombo.SelectedIndex = (options.Sampling == "") ? -1 : Array.IndexOf(s_samplingList, options.Sampling);
-            BitrateStack.IsEnabled = (Array.IndexOf(s_noBitrateCodec, codec) < 0);
+            // サンプリングレートは48kを推奨
+            SamplingCombo.SelectedIndex = (options.Sampling == "") ? 4 : Array.IndexOf(s_samplingList, options.Sampling);
+            BitrateStack.IsEnabled = (Array.IndexOf(s_noBitrateCodec, _options.Codec) < 0);
             BitrateCheck.IsChecked = options.SetBitrate;
             BitrateLabel.IsEnabled = options.SetBitrate;
             BitrateCombo.IsEnabled = options.SetBitrate;
             BitrateCombo.ItemsSource = s_bitrateList;
-            BitrateCombo.SelectedIndex = (options.Bitrate == "") ? -1 : Array.IndexOf(s_bitrateList, options.Bitrate);
+            // ビットレートは384kbpsを推奨
+            BitrateCombo.SelectedIndex = (options.Bitrate == "") ? 7 : Array.IndexOf(s_bitrateList, options.Bitrate);
         }
 
         /// <summary>
@@ -161,6 +164,7 @@ namespace EasyFFmpeg
             _options.SpecifyEncoder = true;
             EncoderLabel.IsEnabled = true;
             EncoderCombo.IsEnabled = true;
+            _options.Encoder = EncoderCombo.Text;
         }
 
         /// <summary>
@@ -173,6 +177,7 @@ namespace EasyFFmpeg
             _options.SpecifyEncoder = false;
             EncoderLabel.IsEnabled = false;
             EncoderCombo.IsEnabled = false;
+            _options.Encoder = "";
         }
 
         /// <summary>
@@ -225,6 +230,7 @@ namespace EasyFFmpeg
             _options.SpecifySampling = true;
             SamplingLabel.IsEnabled = true;
             SamplingCombo.IsEnabled = true;
+            _options.Sampling = SamplingCombo.Text;
         }
 
         /// <summary>
@@ -237,6 +243,7 @@ namespace EasyFFmpeg
             _options.SpecifySampling = false;
             SamplingLabel.IsEnabled = false;
             SamplingCombo.IsEnabled = false;
+            _options.Sampling = "";
         }
 
         /// <summary>
@@ -259,6 +266,7 @@ namespace EasyFFmpeg
             _options.SetBitrate = true;
             BitrateLabel.IsEnabled = true;
             BitrateCombo.IsEnabled = true;
+            _options.Bitrate = BitrateCombo.Text;
         }
 
         /// <summary>
@@ -271,6 +279,7 @@ namespace EasyFFmpeg
             _options.SetBitrate = false;
             BitrateLabel.IsEnabled = false;
             BitrateCombo.IsEnabled = false;
+            _options.Bitrate = "";
         }
 
         /// <summary>

@@ -52,6 +52,8 @@ namespace EasyFFmpeg
         public int AveBitrate { get; set; } = 1;
         /// <value>最大ビットレート</value>
         public int MaxBitrate { get; set; } = 1;
+        /// <value>ビデオ出力に対する引数</value>
+        public string Arguments { get; set; } = "";
 
         /// <param name="Extension">出力ファイルの拡張子</param>
         public VideoOptions(string Extension) 
@@ -86,17 +88,28 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// ビデオ出力をコピーとするための引数を作成
+        /// ビデオ出力をコピーするかどうかを決めて引数を作成
         /// </summary>
         /// <param name="info">入力ファイル情報</param>
-        /// <returns>ビデオ出力をコピーするための引数もしくは空文字</returns>
-        protected string CreateCopyArgument(FileInfo info)
+        /// <returns>ビデオ出力をコピーするかどうか</returns>
+        protected bool CreateCopyArgument(FileInfo info)
         {
-            bool allowCopy = CopyVideo;
-            allowCopy &= (info.VideoCodec == Codec);
-            allowCopy &= ((info.VideoWidth + "x" + info.VideoHeight) == Size);
-            allowCopy &= (info.VideoFrameRate == Framerate);
-            allowCopy &= (int.Parse(info.VideoBitRate) == AveBitrate);
+            bool doCopy = CopyVideo;
+
+            doCopy &= (info.VideoCodec == Codec);
+            doCopy &= (!SpecifyFramerate) || (info.VideoFrameRate == Framerate);
+            var originalSize = info.VideoWidth + "x" + info.VideoHeight;
+            doCopy &= (!SpecifySize) || (originalSize == Size);
+            doCopy &= (!SpecifyAspect);
+            doCopy &= (!SetBitrate);
+            // アスペクト比とビットレートは設定値に関係なく指定した時点でコピー不可とする
+
+            if (doCopy)
+            {
+                Arguments += $"-c:v Copy ";
+            }
+
+            return doCopy;
         }
 
         /// <summary>
@@ -106,7 +119,34 @@ namespace EasyFFmpeg
         /// <returns>ビデオ出力の引数</returns>
         public string CreateArguments(FileInfo info)
         {
+            Arguments = "";
 
+            bool rc = CreateCopyArgument(info);
+            if (!rc)    // ビデオをコピーしない場合には各設定を追加
+            {
+                if (SpecifyEncoder && (Encoder != ""))
+                {
+                    Arguments += $"-c:v {Encoder} ";
+                }
+                if (SpecifyFramerate && (Framerate != ""))
+                {
+                    Arguments += $"-r {Framerate} ";
+                }
+                if (SpecifySize && (Size != ""))
+                {
+                    Arguments += $"-s {Size} ";
+                }
+                if (SpecifyAspect && (Aspect != ""))
+                {
+                    Arguments += $"-aspect {Aspect} ";
+                }
+                if (SetBitrate)
+                {
+                    Arguments += $"-b:v {AveBitrate}M -maxrate {MaxBitrate}M ";
+                }
+            }
+
+            return Arguments;
         }
     }
 }

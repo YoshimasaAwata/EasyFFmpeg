@@ -70,9 +70,10 @@ namespace EasyFFmpeg
         /// <param name="options">ビデオのオプション</param>
         public VideoOptionsBox(VideoOptions options)
         {
+            _options = options;
+
             InitializeComponent();
 
-            _options = options;
             _options.Codec = s_codecDic[options.OutputExtension];
 
             var encoderList = s_encoderDic[_options.Codec];
@@ -84,23 +85,28 @@ namespace EasyFFmpeg
             EncoderLabel.IsEnabled = options.SpecifyEncoder;
             EncoderCombo.IsEnabled = options.SpecifyEncoder;
             EncoderCombo.ItemsSource = encoderList;
-            EncoderCombo.SelectedIndex = (options.Encoder == "") ? -1 : Array.IndexOf(encoderList, options.Encoder);
-            FramerateCheck.IsEnabled = options.SpecifyFramerate;
+            // エンコーダーはリストの最初がお勧め
+            EncoderCombo.SelectedIndex = (options.Encoder == "") ? 0 : Array.IndexOf(encoderList, options.Encoder);
+            FramerateCheck.IsChecked = options.SpecifyFramerate;
             FramerateLabel.IsEnabled = options.SpecifyFramerate;
             FramerateCombo.IsEnabled = options.SpecifyFramerate;
             FramerateCombo.ItemsSource = s_framerateList;
-            FramerateCombo.SelectedIndex = (options.Framerate == "") ? -1 : Array.IndexOf(s_framerateList, options.Framerate);
-            SizeCheck.IsEnabled = options.SpecifySize;
+            // フレームレートは29.97fpsが一般的か?
+            FramerateCombo.SelectedIndex = (options.Framerate == "") ? 1 : Array.IndexOf(s_framerateList, options.Framerate);
+            FPSLabel.IsEnabled = options.SpecifyFramerate;
+            SizeCheck.IsChecked = options.SpecifySize;
             SizeLabel.IsEnabled = options.SpecifySize;
             SizeCombo.IsEnabled = options.SpecifySize;
             SizeCombo.ItemsSource = s_sizeList;
-            SizeCombo.SelectedIndex = (options.Size == "") ? -1 : Array.IndexOf(s_sizeList, options.Size);
-            AspectCheck.IsEnabled = options.SpecifyAspect;
+            // サイズはとりあえずDVDに合わせる
+            SizeCombo.SelectedIndex = (options.Size == "") ? 2 : Array.IndexOf(s_sizeList, options.Size);
+            AspectCheck.IsChecked = options.SpecifyAspect;
             AspectLabel.IsEnabled = options.SpecifyAspect;
             AspectCombo.IsEnabled = options.SpecifyAspect;
             AspectCombo.ItemsSource= s_aspectList;
-            AspectCombo.SelectedIndex = (options.Aspect == "") ? -1 : Array.IndexOf(s_aspectList, options.Aspect);
-            Bitrate1stCheck.IsEnabled = options.SetBitrate;
+            // アスペクト比は16:9を標準とする
+            AspectCombo.SelectedIndex = (options.Aspect == "") ? 1 : Array.IndexOf(s_aspectList, options.Aspect);
+            Bitrate1stCheck.IsChecked = options.SetBitrate;
             AveBitrateDock.IsEnabled = options.SetBitrate;
             MaxBitrateDock.IsEnabled = options.SetBitrate;
             AveBitrateText.Text = options.AveBitrate.ToString();
@@ -192,6 +198,7 @@ namespace EasyFFmpeg
             _options.SpecifyEncoder = true;
             EncoderLabel.IsEnabled = true;
             EncoderCombo.IsEnabled = true;
+            _options.Encoder = EncoderCombo.Text;
         }
 
         /// <summary>
@@ -204,6 +211,7 @@ namespace EasyFFmpeg
             _options.SpecifyEncoder = false;
             EncoderLabel.IsEnabled = false;
             EncoderCombo.IsEnabled = false;
+            _options.Encoder = "";
         }
 
         /// <summary>
@@ -217,6 +225,34 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// フレームレートの選択肢を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FramerateCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyFramerate = true;
+            FramerateLabel.IsEnabled = true;
+            FramerateCombo.IsEnabled = true;
+            FPSLabel.IsEnabled = true;
+            _options.Framerate = FramerateCombo.Text;
+        }
+
+        private void FramerateCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _options.SpecifyFramerate = false;
+            FramerateLabel.IsEnabled = false;
+            FramerateCombo.IsEnabled = false;
+            FPSLabel.IsEnabled= false;
+            _options.Framerate = "";
+        }
+
+        private void FramerateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _options.Framerate = FramerateCombo.Text;
+        }
+
+        /// <summary>
         /// 画像サイズの指定を有効にする
         /// </summary>
         /// <param name="sender"></param>
@@ -226,6 +262,7 @@ namespace EasyFFmpeg
             _options.SpecifySize = true;
             SizeLabel.IsEnabled = true;
             SizeCombo.IsEnabled = true;
+            _options.Size = SizeCombo.Text;
         }
 
         /// <summary>
@@ -238,6 +275,7 @@ namespace EasyFFmpeg
             _options.SpecifySize = false;
             SizeLabel.IsEnabled = false;
             SizeCombo.IsEnabled = false;
+            _options.Size = "";
         }
 
         /// <summary>
@@ -260,6 +298,7 @@ namespace EasyFFmpeg
             _options.SpecifyAspect = true;
             AspectLabel.IsEnabled = true;
             AspectCombo.IsEnabled = true;
+            _options.Aspect = AspectCombo.Text;
         }
 
         /// <summary>
@@ -272,6 +311,7 @@ namespace EasyFFmpeg
             _options.SpecifyAspect = false;
             AspectLabel.IsEnabled = false;
             AspectCombo.IsEnabled = false;
+            _options.Aspect = "";
         }
 
         /// <summary>
@@ -295,6 +335,8 @@ namespace EasyFFmpeg
             AveBitrateDock.IsEnabled = true;
             MaxBitrateDock.IsEnabled = true;
             StatusLabel.Content = "";
+            _options.AveBitrate = (AveBitrateText.Text == "") ? 0 : int.Parse(AveBitrateText.Text);
+            _options.MaxBitrate = (MaxBitrateText.Text == "") ? 0 : int.Parse(MaxBitrateText.Text);
         }
 
         /// <summary>
@@ -308,6 +350,8 @@ namespace EasyFFmpeg
             AveBitrateDock.IsEnabled= false;
             MaxBitrateDock.IsEnabled = false;
             StatusLabel.Content = "";
+            _options.AveBitrate = 0;
+            _options.MaxBitrate = 0;
         }
 
         /// <summary>
@@ -424,6 +468,7 @@ namespace EasyFFmpeg
                 MaxBitrateText.Text = bitrate.ToString();
                 MaxBitrateSlider.Value = bitrate;
             }
+            AveBitrateText.Text = bitrate.ToString();
             StatusLabel.Content = "";
         }
 
@@ -447,25 +492,6 @@ namespace EasyFFmpeg
             _options.MaxBitrate = bitrate;
             MaxBitrateText.Text = bitrate.ToString();
             StatusLabel.Content = "";
-        }
-
-        private void FramerateCheck_Checked(object sender, RoutedEventArgs e)
-        {
-            _options.SpecifyFramerate = true;
-            FramerateLabel.IsEnabled = true;
-            FramerateCombo.IsEnabled = true;
-        }
-
-        private void FramerateCheck_Unchecked(object sender, RoutedEventArgs e)
-        {
-            _options.SpecifyFramerate = false;
-            FramerateLabel.IsEnabled = false;
-            FramerateCombo.IsEnabled = false;
-        }
-
-        private void FramerateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _options.Framerate = FramerateCombo.Text;
         }
     }
 }

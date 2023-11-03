@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -14,7 +15,7 @@ namespace EasyFFmpeg
     /// <summary>
     /// ファイルの情報をFFprobeで取得し、保管
     /// </summary>
-    internal class FileInfo
+    public class FileInfo
     {
         /// <value>エラーメッセージ</value>
         public string Message { get; protected set; } = "";
@@ -31,7 +32,7 @@ namespace EasyFFmpeg
         /// <value>オーディオサンプリングレート</value>
         public string AudioSamplingRate { get; protected set; } = "";
         /// <value>オーディオチャンネル数</value>
-        public string AudioCannel { get; protected set; } = "";
+        public string AudioChannel { get; protected set; } = "";
         /// <value>オーディオビットレート</value>
         public string AudioBitRate { get; protected set; } = "";
         /// <value>ビデオコーデック</value>
@@ -138,7 +139,7 @@ namespace EasyFFmpeg
                 attr = audioStream.Attributes?["channel_layout"];
                 if (attr != null)
                 {
-                    AudioCannel = attr.Value;
+                    AudioChannel = attr.Value;
                 }
                 attr = audioStream.Attributes?["bit_rate"];
                 if (attr != null)
@@ -229,6 +230,15 @@ namespace EasyFFmpeg
             {
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// オーディオのチャンネル数を取得
+        /// </summary>
+        /// <returns>オーディオのチャンネル数</returns>
+        public int GetAudioChannelNum()
+        {
+            return (AudioChannel == "mono") ? 1 : ((AudioChannel == "stereo") ? 2 : 0);
         }
     }
 }

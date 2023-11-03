@@ -69,6 +69,7 @@ namespace EasyFFmpeg
                     ExtensionComboBox.ItemsSource = _fileList.VideoExtensions;
                     ExtensionComboBox.SelectedIndex = _videoOutputSelectedIndex;
                 }
+                _fileList.Extension = ExtensionComboBox.Text;
             }
         }
 
@@ -275,12 +276,12 @@ namespace EasyFFmpeg
             if (VideoRadio.IsChecked == true)
             {
                 _videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                _fileList.Extension = _fileList.VideoExtensions[_videoOutputSelectedIndex];
+                _fileList.Extension = _fileList.VideoExtensions[ExtensionComboBox.SelectedIndex];
             }
             else    // (AudioRadio.IsChecked == true)
             {
                 _audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                _fileList.Extension = _fileList.AudioExtensions[_audioOutputSelectedIndex];
+                _fileList.Extension = _fileList.AudioExtensions[ExtensionComboBox.SelectedIndex];
             }
         }
 
@@ -357,30 +358,6 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// 渡されたコントロールの指定のタイプの子コントロールを取得
-        /// </summary>
-        /// <typeparam name="T">取得する子コントロールのタイプ</typeparam>
-        /// <param name="dependencyObject">親コントロール</param>
-        /// <returns>指定のタイプの子コントロールもしくはnull</returns>
-        private T? GetDependencyObject<T>(DependencyObject dependencyObject) where T : DependencyObject
-        {
-            T? obj = null;
-            if (dependencyObject != null)
-            {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(dependencyObject); i++)
-                {
-                    var child = VisualTreeHelper.GetChild(dependencyObject, i);
-                    obj = (child as T) ?? GetDependencyObject<T>(child);
-                    if (obj != null)
-                    {
-                        break;
-                    }
-                }
-            }
-            return obj;
-        }
-
-        /// <summary>
         /// "FromListBox"から選択したファイルをFFplayで再生
         /// </summary>
         /// <param name="sender"></param>
@@ -425,6 +402,10 @@ namespace EasyFFmpeg
         private void VideoRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Video);
+            if (VideoOptionsButton != null)
+            {
+                VideoOptionsButton.IsEnabled = true;
+            }
         }
 
         /// <summary>
@@ -435,6 +416,10 @@ namespace EasyFFmpeg
         private void AudioRadio_Checked(object sender, RoutedEventArgs e)
         {
             SetOutputExtensions(AV.Audio);
+            if (VideoOptionsButton != null)
+            {
+                VideoOptionsButton.IsEnabled = false;
+            }
         }
 
         /// <summary>

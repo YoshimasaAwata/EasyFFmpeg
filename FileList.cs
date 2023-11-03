@@ -56,8 +56,8 @@ namespace EasyFFmpeg
                 if (_extension != value)
                 {
                     _extension = value;
-                    VideoOptions = new VideoOptions(value);
-                    AudioOptions = new AudioOptions(value);
+                    VideoOptions.OutputExtension = value;
+                    AudioOptions.OutputExtension = value;
                 }
             }
         }
@@ -410,7 +410,7 @@ namespace EasyFFmpeg
                     info += "  オーディオ情報:\n";
                     info += $"    オーディオコーデック: {fileInfo.AudioCodec}\n";
                     info += $"    オーディオサンプリングレート: {fileInfo.AudioSamplingRate} Hz\n";
-                    info += $"    オーディオチャンネル: {fileInfo.AudioCannel}\n";
+                    info += $"    オーディオチャンネル: {fileInfo.AudioChannel}\n";
                     info += $"    オーディオビットレート: {fileInfo.AudioBitRate} bps\n";
                 }
                 if (fileInfo.VideoCodec != "")

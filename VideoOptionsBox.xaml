@@ -14,7 +14,7 @@
         FontFamily="{materialDesign:MaterialDesignFont}"
         WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        Title="VideoOptionsBox" Height="500" Width="600">
+        Title="VideoOptionsBox" Height="600" Width="800">
     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10,10,10,10" Background="White">
         <Grid>
             <Grid.RowDefinitions>
@@ -52,6 +52,7 @@
                                 <CheckBox x:Name="FramerateCheck" Content=": フレームレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="FramerateCheck_Checked" Unchecked="FramerateCheck_Unchecked" />
                                 <Label x:Name="FramerateLabel" Content="フレームレート: " IsEnabled="False" />
                                 <ComboBox x:Name="FramerateCombo" IsEnabled="False" SelectionChanged="FramerateCombo_SelectionChanged" />
+                                <Label x:Name="FPSLabel" Content="fps" IsEnabled="False"/>
                             </StackPanel>
                         </Grid>
                         <Grid Margin="0,5,0,5">
@@ -70,7 +71,7 @@
                                 <ComboBox x:Name="AspectCombo" IsEnabled="False" SelectionChanged="AspectCombo_SelectionChanged" />
                             </StackPanel>
                         </Grid>
-                        <StackPanel Margin="0,5,0,5">
+                        <StackPanel Margin="0,5,0,5" Orientation="Horizontal">
                             <CheckBox x:Name="Bitrate1stCheck" Content=": ビットレート優先" FlowDirection="RightToLeft" Checked="Bitrate1stCheck_Checked" Unchecked="Bitrate1stCheck_Unchecked" HorizontalAlignment="Left" Margin="0,0,0,5" />
                             <Label x:Name="StatusLabel" Margin="5,0,0,0" Foreground="Red"/>
                         </StackPanel>
