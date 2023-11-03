@@ -209,6 +209,8 @@ namespace EasyFFmpeg
         {
             DisableButtons();
 
+            _fileList.ClearArgumentsNote();
+
             var count = _fileList.FileNameList.Count;
 
             if ((IndividualRadio.IsChecked == true) || (_fileList.FileNameList.Count == 1))
@@ -240,7 +242,7 @@ namespace EasyFFmpeg
                 }
             }
 
-            await DialogHost.Show(new ErrorDialog("変換が終了しました。", ErrorDialog.Type.Info));
+            await DialogHost.Show(new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました"));
 
             EnableButtons();
         }

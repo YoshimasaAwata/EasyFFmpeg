@@ -23,10 +23,15 @@ namespace EasyFFmpeg
     public partial class InfoBox : Window
     {
         /// <param name="info">表示する情報</param>
-        public InfoBox(string info)
+        /// <param name="title">タイトル</param>
+        public InfoBox(string info, string? title = null)
         {
             InitializeComponent();
 
+            if (title != null)
+            {
+                TitleLabel.Content = title;
+            }
             InfoTextBlock.Text = info;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }

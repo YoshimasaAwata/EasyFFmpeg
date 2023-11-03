@@ -54,6 +54,8 @@ namespace EasyFFmpeg
         public VideoOptions VideoOptions { get; set; }
         /// <value>オーディオオプション</value>
         public AudioOptions AudioOptions { get; set; }
+        /// <value>引数の履歴</value>
+        public StringBuilder ArgumentsHistory { get; private set; } = new StringBuilder();
 
         public FileList()
         {
@@ -113,6 +115,14 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// 引数の
+        /// </summary>
+        public void ClearArgumentsNote()
+        {
+            ArgumentsHistory.Clear();
+        }
+
+        /// <summary>
         /// ファイル結合/変換時のFFmpegの引数を作成
         /// </summary>
         /// <returns>引数</returns>
@@ -155,6 +165,8 @@ namespace EasyFFmpeg
             info.FileName = "ffmpeg";
             info.Arguments = CreateArgumentsJoin();
             info.UseShellExecute = false;
+
+            ArgumentsHistory.Append(info.Arguments + "\n");
 
             try
             {
@@ -224,6 +236,8 @@ namespace EasyFFmpeg
             info.FileName = "ffmpeg";
             info.Arguments = CreateArguments(file);
             info.UseShellExecute = false;
+
+            ArgumentsHistory.Append(info.Arguments + "\n");
 
             try
             {
