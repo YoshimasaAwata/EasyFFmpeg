@@ -69,7 +69,7 @@ namespace EasyFFmpeg
                     ExtensionComboBox.ItemsSource = _fileList.VideoExtensions;
                     ExtensionComboBox.SelectedIndex = _videoOutputSelectedIndex;
                 }
-                _fileList.Extension = ExtensionComboBox.Text;
+                _fileList.SetOutputExtension(ExtensionComboBox.SelectedValue as string);
             }
         }
 
@@ -276,12 +276,12 @@ namespace EasyFFmpeg
             if (VideoRadio.IsChecked == true)
             {
                 _videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                _fileList.Extension = _fileList.VideoExtensions[ExtensionComboBox.SelectedIndex];
+                _fileList.SetOutputExtension(_fileList.VideoExtensions[ExtensionComboBox.SelectedIndex]);
             }
             else    // (AudioRadio.IsChecked == true)
             {
                 _audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
-                _fileList.Extension = _fileList.AudioExtensions[ExtensionComboBox.SelectedIndex];
+                _fileList.SetOutputExtension(_fileList.AudioExtensions[ExtensionComboBox.SelectedIndex]);
             }
         }
 

@@ -19,27 +19,6 @@ namespace EasyFFmpeg
     /// </summary>
     public partial class AudioOptionsBox : Window
     {
-        /// <value>拡張子とオーディオのコーデック辞書</value>
-        private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
-        {
-            {".mp4", "aac"},
-            {".asf", "wmav2"},
-            {".avi", "mp3"},
-            {".swf", "mp3"},
-            {".mkv", "vorbis"},
-            {".mov", "aac"},
-            {".ogg", "vorbis"},
-            {".ts", "mp2"},
-            {".webm", "opus"},
-            {".aac", "aac"},
-            {".ac3", "ac3"},
-            {".mp3", "mp3"},
-            {".m4a", "aac"},
-            {".oga", "flac"},
-            {".wma", "wmav2"},
-            {".wav", "pcm_s16le"},
-        };
-
         /// <value>オーディオのコーデックとエンコーダーの辞書</value>
         private static readonly Dictionary<string, string[]> s_encoderDic = new Dictionary<string, string[]>()
         {
@@ -78,8 +57,6 @@ namespace EasyFFmpeg
             _options = options;
 
             InitializeComponent();
-
-            _options.Codec = s_codecDic[options.OutputExtension];
 
             var encoderList = s_encoderDic[_options.Codec];
 

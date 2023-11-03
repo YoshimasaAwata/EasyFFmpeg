@@ -47,20 +47,9 @@ namespace EasyFFmpeg
             ".aac", ".ac3", ".adpcm", ".amr", ".alac", ".fla", ".flac", ".mp1", ".mp2", ".mp3", ".m4a", ".als", ".pcm", ".qcp", ".ra", ".oga", ".wma"
         };
         /// <value>変換先拡張子</value>
-        private string _extension = ".mp4";
-        public string Extension 
-        { 
-            get => _extension; 
-            set
-            {
-                if (_extension != value)
-                {
-                    _extension = value;
-                    VideoOptions.OutputExtension = value;
-                    AudioOptions.OutputExtension = value;
-                }
-            }
-        }
+        private string Extension { get; set; } = ".mp4";
+        /// <value>ビデオコーデックを使用する</value>
+        public bool UseVideoCodec = true;
         /// <value>ビデオオプション</value>
         public VideoOptions VideoOptions { get; set; }
         /// <value>オーディオオプション</value>
@@ -70,6 +59,20 @@ namespace EasyFFmpeg
         {
             VideoOptions = new VideoOptions(Extension);
             AudioOptions = new AudioOptions(Extension);
+        }
+
+        public void SetOutputExtension(string? outputExtension)
+        {
+            if (outputExtension != null)
+            {
+                UseVideoCodec = VideoExtensions.Contains(outputExtension);
+                if (Extension != outputExtension)
+                {
+                    Extension = outputExtension;
+                    VideoOptions.OutputExtension = outputExtension;
+                    AudioOptions.OutputExtension = outputExtension;
+                }
+            }
         }
 
         /// <summary>
@@ -115,40 +118,22 @@ namespace EasyFFmpeg
         /// <returns>引数</returns>
         protected string CreateArgumentsJoin()
         {
-            var args = $"-hide_banner";
+            var args = $"-hide_banner ";
+            args += VideoOptions.CreateHWDecoderArgument();
 
             foreach (var file in FileNameList)
             {
-                args += $" -i \"{file}\"";
+                args += $"-i \"{file}\" ";
             }
 
-            try
+            var firstFile = FileNameList[0];
+            if (UseVideoCodec)
             {
-                FileInfo info = new FileInfo(FileNameList[0]);
-                if (info.AudioCodec != "")
-                {
-                    var abr = info.GetAudioBitRate();
-                    args += (abr > 0) ? $" -b:a {abr}" : "";
-                }
-                if (info.VideoCodec != "")
-                {
-                    //var vbr = info.GetVideoBitRate();
-                    //args += (vbr > 0) ? $" -b:v {vbr}" : "";
-                    //args += (vbr > 0) ? $" -crf 10" : "";
-                    if (Extension == ".mp4")
-                    {
-                        //args += " -c:v h264_nvenc";
-                        args += " -c:v libopenh264";
-                    }
-                }
+                args += VideoOptions.CreateArguments(firstFile, true);
             }
-            catch (Exception e) 
-            {
-                Message = e.Message;
-            }
-
+            args += AudioOptions.CreateArguments(firstFile, true);
             args += $" -filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
-            args += $" {ToFileName(FileNameList[0])}";
+            args += $"{ToFileName(firstFile)}";
 
             return args;
         }
@@ -209,49 +194,15 @@ namespace EasyFFmpeg
         /// <returns>引数</returns>
         protected string CreateArguments(string file)
         {
-            var args = $"-hide_banner -i \"{file}\"";
-
-            try
+            var args = "-hide_banner ";
+            args += VideoOptions.CreateHWDecoderArgument();
+            args += $"-i \"{file}\" ";
+            if (UseVideoCodec)
             {
-                FileInfo info = new FileInfo(file);
-                var ext = Path.GetExtension(file);
-                if (ext == Extension)
-                {
-                    if (info.AudioCodec != "")
-                    {
-                        args += " -c:a copy";
-                    }
-                    if (info.VideoCodec != "")
-                    {
-                        args += " -c:v copy";
-                    }
-                }
-                else
-                {
-                    if (info.AudioCodec != "")
-                    {
-                        var abr = info.GetAudioBitRate();
-                        args += (abr > 0) ? $" -b:a {abr}" : "";
-                    }
-                    if (info.VideoCodec != "")
-                    {
-                        //var vbr = info.GetVideoBitRate();
-                        //args += (vbr > 0) ? $" -b:v {vbr}" : "";
-                        //args += (vbr > 0) ? $" -crf 10" : "";
-                        if (Extension == ".mp4")
-                        {
-                            //args += " -c:v h264_nvenc";
-                            args += " -c:v libopenh264";
-                        }
-                    }
-                }
+                args += VideoOptions.CreateArguments(file);
             }
-            catch (Exception e)
-            {
-                Message = e.Message;
-            }
-
-            args += $" {ToFileName(file)}";
+            args += AudioOptions.CreateArguments(file);
+            args += $"{ToFileName(file)}";
 
             return args;
         }

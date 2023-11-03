@@ -21,20 +21,6 @@ namespace EasyFFmpeg
     /// </summary>
     public partial class VideoOptionsBox : Window
     {
-        /// <value>拡張子とビデオのコーデックの辞書</value>
-        private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
-        {
-            {".mp4", "h264"},
-            {".asf", "msmpeg4v3"},
-            {".avi", "mpeg4"},
-            {".swf", "flv1"},
-            {".mkv", "h264"},
-            {".mov", "h264"},
-            {".ogg", "theora"},
-            {".ts", "mpeg2video"},
-            {".webm", "vp9"},
-        };
-
         /// <value>ビデオのコーデックとエンコーダーの辞書</value>
         private static readonly Dictionary<string, string[]> s_encoderDic = new Dictionary<string, string[]>()
         {
@@ -73,8 +59,6 @@ namespace EasyFFmpeg
             _options = options;
 
             InitializeComponent();
-
-            _options.Codec = s_codecDic[options.OutputExtension];
 
             var encoderList = s_encoderDic[_options.Codec];
 

@@ -11,23 +11,48 @@ namespace EasyFFmpeg
     /// </summary>
     public class AudioOptions
     {
+        /// <value>拡張子とオーディオのコーデック辞書</value>
+        private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
+        {
+            {".mp4", "aac"},
+            {".asf", "wmav2"},
+            {".avi", "mp3"},
+            {".swf", "mp3"},
+            {".mkv", "vorbis"},
+            {".mov", "aac"},
+            {".ogg", "vorbis"},
+            {".ts", "mp2"},
+            {".webm", "opus"},
+            {".aac", "aac"},
+            {".ac3", "ac3"},
+            {".mp3", "mp3"},
+            {".m4a", "aac"},
+            {".oga", "flac"},
+            {".wma", "wmav2"},
+            {".wav", "pcm_s16le"},
+        };
+
         /// <value>出力ファイルの拡張子</value>
         private string _outputExtension;
-        public string OutputExtension {
+        public string OutputExtension
+        {
             get => _outputExtension;
-            set 
+            set
             {
                 if (_outputExtension != value)
                 {
                     _outputExtension = value;
-                    Initialize();
+                    if ((s_codecDic.ContainsValue(value)) && (Codec != s_codecDic[value]))
+                    {
+                        Initialize();
+                    }
                 }
-            } 
+            }
         }
         /// <value>オーディオ変換時にコピーができればコピーする</value>
         public bool CopyAudio { get; set; } = true;
         /// <value>コーデックを指定する</value>
-        public string Codec { get; set; } = "";
+        public string Codec { get; set; }
         /// <value>エンコーダーを指定する</value>
         public bool SpecifyEncoder { get; set; } = false;
         /// <value>使用するエンコーダー</value>
@@ -46,9 +71,10 @@ namespace EasyFFmpeg
         public string Arguments { get; set; } = "";
 
         /// <param name="Extension">出力ファイルの拡張子</param>
-        public AudioOptions(string Extension) 
+        public AudioOptions(string Extension)
         {
             _outputExtension = Extension;
+            Codec = s_codecDic[Extension];
         }
 
         /// <summary>
@@ -57,6 +83,7 @@ namespace EasyFFmpeg
         public void Initialize()
         {
             CopyAudio = true;
+            Codec = s_codecDic[_outputExtension];
             SpecifyEncoder = false;
             Encoder = "";
             Channel = 0;
@@ -69,20 +96,29 @@ namespace EasyFFmpeg
         /// <summary>
         /// オーディオ出力をコピーするかどうかを決めて引数を作成
         /// </summary>
-        /// <param name="info">入力ファイル情報</param>
+        /// <param name="file">入力ファイル名</param>
         /// <returns>オーディオ出力をコピーするかどうか</returns>
-        protected bool CreateCopyArgument(FileInfo info)
+        protected bool CreateCopyArgument(string file)
         {
             bool doCopy = CopyAudio;
 
-            doCopy &= (info.AudioCodec == Codec);
-            doCopy &= (Channel == 0) || (info.GetAudioChannelNum() == Channel);
-            doCopy &= (!SpecifySampling) || (info.AudioSamplingRate == Sampling);
-            doCopy &= (!SetBitrate) || (info.AudioBitRate == Bitrate);
-
-            if (doCopy)
+            try
             {
-                Arguments += $"-c:a Copy ";
+                var info = new FileInfo(file);
+
+                doCopy &= (info.AudioCodec == Codec);
+                doCopy &= (Channel == 0) || (info.GetAudioChannelNum() == Channel);
+                doCopy &= (!SpecifySampling) || (info.AudioSamplingRate == Sampling);
+                doCopy &= (!SetBitrate) || (info.AudioBitRate == Bitrate);
+
+                if (doCopy)
+                {
+                    Arguments += $"-c:a Copy ";
+                }
+            }
+            catch
+            {
+                doCopy = false;
             }
 
             return doCopy;
@@ -91,13 +127,18 @@ namespace EasyFFmpeg
         /// <summary>
         /// オーディオ出力の引数を作成
         /// </summary>
-        /// <param name="info">入力ファイル情報</param>
+        /// <param name="file">入力ファイル名</param>
+        /// <param name="notCopy">ビデオをコピーしない指定</param>
         /// <returns>オーディオ出力の引数</returns>
-        public string CreateArguments(FileInfo info)
+        public string CreateArguments(string file, bool notCopy = false)
         {
             Arguments = "";
 
-            bool rc = CreateCopyArgument(info);
+            bool rc = !notCopy;
+            if (rc)
+            {
+                rc = CreateCopyArgument(file);
+            }
             if (!rc)    // オーディオをコピーしない場合には各設定を追加
             {
                 if (SpecifyEncoder && (Encoder != ""))

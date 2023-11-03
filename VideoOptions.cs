@@ -11,25 +11,43 @@ namespace EasyFFmpeg
     /// </summary>
     public class VideoOptions
     {
+        /// <value>拡張子とビデオのコーデックの辞書</value>
+        private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
+        {
+            {".mp4", "h264"},
+            {".asf", "msmpeg4v3"},
+            {".avi", "mpeg4"},
+            {".swf", "flv1"},
+            {".mkv", "h264"},
+            {".mov", "h264"},
+            {".ogg", "theora"},
+            {".ts", "mpeg2video"},
+            {".webm", "vp9"},
+        };
+
         /// <value>出力ファイルの拡張子</value>
         private string _outputExtension;
-        public string OutputExtension {
+        public string OutputExtension
+        {
             get => _outputExtension;
-            set 
+            set
             {
                 if (_outputExtension != value)
                 {
                     _outputExtension = value;
-                    Initialize();
+                    if ((s_codecDic.ContainsValue(value)) && (Codec != s_codecDic[value]))
+                    {
+                        Initialize();
+                    }
                 }
-            } 
+            }
         }
         /// <value>デコーダーでハードウェアアクセラレーションを使用するか</value>
         public bool UseHWAccel { get; set; } = false;
         /// <value>ビデオ変換時にコピーができればコピーする</value>
         public bool CopyVideo { get; set; } = true;
         /// <value>コーデックを指定する</value>
-        public string Codec { get; set; } = "";
+        public string Codec { get; set; }
         /// <value>エンコーダーを指定する</value>
         public bool SpecifyEncoder { get; set; } = false;
         /// <value>使用するエンコーダー</value>
@@ -56,9 +74,10 @@ namespace EasyFFmpeg
         public string Arguments { get; set; } = "";
 
         /// <param name="Extension">出力ファイルの拡張子</param>
-        public VideoOptions(string Extension) 
+        public VideoOptions(string Extension)
         {
             _outputExtension = Extension;
+            Codec = s_codecDic[Extension];
         }
 
         /// <summary>
@@ -68,7 +87,7 @@ namespace EasyFFmpeg
         {
             UseHWAccel = false;
             CopyVideo = true;
-            Codec = "";
+            Codec = s_codecDic[_outputExtension];
             SpecifyEncoder = false;
             Encoder = "";
             SpecifyFramerate = false;
@@ -90,23 +109,32 @@ namespace EasyFFmpeg
         /// <summary>
         /// ビデオ出力をコピーするかどうかを決めて引数を作成
         /// </summary>
-        /// <param name="info">入力ファイル情報</param>
+        /// <param name="file">入力ファイル名</param>
         /// <returns>ビデオ出力をコピーするかどうか</returns>
-        protected bool CreateCopyArgument(FileInfo info)
+        protected bool CreateCopyArgument(string file)
         {
             bool doCopy = CopyVideo;
 
-            doCopy &= (info.VideoCodec == Codec);
-            doCopy &= (!SpecifyFramerate) || (info.VideoFrameRate == Framerate);
-            var originalSize = info.VideoWidth + "x" + info.VideoHeight;
-            doCopy &= (!SpecifySize) || (originalSize == Size);
-            doCopy &= (!SpecifyAspect);
-            doCopy &= (!SetBitrate);
-            // アスペクト比とビットレートは設定値に関係なく指定した時点でコピー不可とする
-
-            if (doCopy)
+            try
             {
-                Arguments += $"-c:v Copy ";
+                var info = new FileInfo(file);
+
+                doCopy &= (info.VideoCodec == Codec);
+                doCopy &= (!SpecifyFramerate) || (info.VideoFrameRate == Framerate);
+                var originalSize = info.VideoWidth + "x" + info.VideoHeight;
+                doCopy &= (!SpecifySize) || (originalSize == Size);
+                doCopy &= (!SpecifyAspect);
+                doCopy &= (!SetBitrate);
+                // アスペクト比とビットレートは設定値に関係なく指定した時点でコピー不可とする
+
+                if (doCopy)
+                {
+                    Arguments += $"-c:v Copy ";
+                }
+            }
+            catch
+            {
+                doCopy = false;
             }
 
             return doCopy;
@@ -115,13 +143,18 @@ namespace EasyFFmpeg
         /// <summary>
         /// ビデオ出力の引数を作成
         /// </summary>
-        /// <param name="info">入力ファイル情報</param>
+        /// <param name="file">入力ファイル名</param>
+        /// <param name="notCopy">ビデオをコピーしない指定</param>
         /// <returns>ビデオ出力の引数</returns>
-        public string CreateArguments(FileInfo info)
+        public string CreateArguments(string file, bool notCopy = false)
         {
             Arguments = "";
 
-            bool rc = CreateCopyArgument(info);
+            bool rc = !notCopy;
+            if (rc)
+            {
+                rc = CreateCopyArgument(file);
+            }
             if (!rc)    // ビデオをコピーしない場合には各設定を追加
             {
                 if (SpecifyEncoder && (Encoder != ""))
