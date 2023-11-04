@@ -33,6 +33,10 @@ namespace EasyFFmpeg
                 TitleLabel.Content = title;
             }
             InfoTextBlock.Text = info;
+            if (info == "")
+            {
+                CopyButton.IsEnabled = false;
+            }
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
@@ -60,6 +64,12 @@ namespace EasyFFmpeg
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            var text = InfoTextBlock.Text;
+            Clipboard.SetText(text);
         }
     }
 }

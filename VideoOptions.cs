@@ -35,7 +35,7 @@ namespace EasyFFmpeg
                 if (_outputExtension != value)
                 {
                     _outputExtension = value;
-                    if ((s_codecDic.ContainsValue(value)) && (Codec != s_codecDic[value]))
+                    if ((!s_codecDic.ContainsKey(value)) || (Codec != s_codecDic[value]))
                     {
                         Initialize();
                     }
@@ -129,7 +129,7 @@ namespace EasyFFmpeg
 
                 if (doCopy)
                 {
-                    Arguments += $"-c:v Copy ";
+                    Arguments += $"-c:v copy ";
                 }
             }
             catch

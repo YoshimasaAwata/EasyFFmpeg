@@ -163,6 +163,8 @@ namespace EasyFFmpeg
             AudioRadio.IsEnabled = enable;
             VideoRadio.IsEnabled = enable;
             FromListBox.IsEnabled = enable;
+            VideoOptionsButton.IsEnabled = enable;
+            AudioOptionsButton.IsEnabled = enable;
         }
 
         /// <summary>
@@ -242,7 +244,10 @@ namespace EasyFFmpeg
                 }
             }
 
-            await DialogHost.Show(new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました"));
+            var infoDialog = new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました");
+            infoDialog.ShowDialog();
+
+//            await DialogHost.Show(new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました"));
 
             EnableButtons();
         }

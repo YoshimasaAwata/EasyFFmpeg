@@ -34,16 +34,16 @@ namespace EasyFFmpeg
         };
 
         /// <value>アスペクト比</value>
-        private static readonly string[] s_framerateList = {"24", "30000/1001", "30", "50", "60000/1001", "60", "120", "240"};
+        private static readonly string[] s_framerateList = { "24", "30000/1001", "30", "50", "60000/1001", "60", "120", "240" };
 
         /// <value>スクリーンサイズ</value>
-        private static readonly string[] s_sizeList = 
+        private static readonly string[] s_sizeList =
         {
             "320x240", "640x480", "720x480", "800x600", "1024x768", "1280x720", "1280x960", "1440x1080", "1600x1200", "1920x1080", "2560x1440", "3840x2160", "7680x4320",
         };
 
         /// <value>アスペクト比</value>
-        private static readonly string[] s_aspectList = {"4:3", "16:9",};
+        private static readonly string[] s_aspectList = { "4:3", "16:9", };
 
         /// <value>最大ビットレート(Mbps)</value>
         private const int MAX_BITRATE = 300;
@@ -51,16 +51,19 @@ namespace EasyFFmpeg
         private const int MIN_BITRATE = 1;
 
         /// <value>ビデオのオプション</value>
-        private VideoOptions _options;
+        private VideoOptions? _options = null;
 
         /// <param name="options">ビデオのオプション</param>
         public VideoOptionsBox(VideoOptions options)
         {
-            _options = options;
 
             InitializeComponent();
 
-            var encoderList = s_encoderDic[_options.Codec];
+            _options = options;
+
+            var encoderList = s_encoderDic[options.Codec];
+
+            OutputGroup.Header = $"エンコーダー({options.Codec})";
 
             HWDecoderCheck.IsChecked = options.UseHWAccel;
             CopyCheck.IsChecked = options.CopyVideo;
@@ -87,7 +90,7 @@ namespace EasyFFmpeg
             AspectCheck.IsChecked = options.SpecifyAspect;
             AspectLabel.IsEnabled = options.SpecifyAspect;
             AspectCombo.IsEnabled = options.SpecifyAspect;
-            AspectCombo.ItemsSource= s_aspectList;
+            AspectCombo.ItemsSource = s_aspectList;
             // アスペクト比は16:9を標準とする
             AspectCombo.SelectedIndex = (options.Aspect == "") ? 1 : Array.IndexOf(s_aspectList, options.Aspect);
             Bitrate1stCheck.IsChecked = options.SetBitrate;
@@ -139,7 +142,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void HWDecoderCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.UseHWAccel = true;
+            if (_options != null)
+            {
+                _options.UseHWAccel = true;
+            }
         }
 
         /// <summary>
@@ -149,7 +155,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void HWDecoderCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.UseHWAccel = false;
+            if (_options != null)
+            {
+                _options.UseHWAccel = false;
+            }
         }
 
         /// <summary>
@@ -159,7 +168,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CopyCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.CopyVideo = true;
+            if (_options != null)
+            {
+                _options.CopyVideo = true;
+            }
         }
 
         /// <summary>
@@ -169,7 +181,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CopyCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.CopyVideo = false;
+            if (_options != null)
+            {
+                _options.CopyVideo = false;
+            }
         }
 
         /// <summary>
@@ -179,10 +194,14 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void EncoderCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyEncoder = true;
             EncoderLabel.IsEnabled = true;
             EncoderCombo.IsEnabled = true;
-            _options.Encoder = EncoderCombo.Text;
+            if (_options != null)
+            {
+                var index = EncoderCombo.SelectedIndex;
+                _options.Encoder = (index < 0) ? "" : s_encoderDic[_options.Codec][index];
+                _options.SpecifyEncoder = true;
+            }
         }
 
         /// <summary>
@@ -192,10 +211,13 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void EncoderCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyEncoder = false;
             EncoderLabel.IsEnabled = false;
             EncoderCombo.IsEnabled = false;
-            _options.Encoder = "";
+            if (_options != null)
+            {
+                _options.Encoder = "";
+                _options.SpecifyEncoder = false;
+            }
         }
 
         /// <summary>
@@ -205,7 +227,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void EncoderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _options.Encoder = EncoderCombo.Text;
+            if (_options != null)
+            {
+                _options.Encoder = s_encoderDic[_options.Codec][EncoderCombo.SelectedIndex];
+            }
         }
 
         /// <summary>
@@ -215,25 +240,35 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void FramerateCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyFramerate = true;
             FramerateLabel.IsEnabled = true;
             FramerateCombo.IsEnabled = true;
             FPSLabel.IsEnabled = true;
-            _options.Framerate = FramerateCombo.Text;
+            if (_options != null)
+            {
+                var index = FramerateCombo.SelectedIndex;
+                _options.Framerate = (index < 0) ? "" : s_framerateList[index];
+                _options.SpecifyFramerate = true;
+            }
         }
 
         private void FramerateCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyFramerate = false;
             FramerateLabel.IsEnabled = false;
             FramerateCombo.IsEnabled = false;
-            FPSLabel.IsEnabled= false;
-            _options.Framerate = "";
+            FPSLabel.IsEnabled = false;
+            if (_options != null)
+            {
+                _options.Framerate = "";
+                _options.SpecifyFramerate = false;
+            }
         }
 
         private void FramerateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _options.Framerate = FramerateCombo.Text;
+            if (_options != null)
+            {
+                _options.Framerate = s_framerateList[FramerateCombo.SelectedIndex];
+            }
         }
 
         /// <summary>
@@ -243,10 +278,14 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void SizeCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifySize = true;
             SizeLabel.IsEnabled = true;
             SizeCombo.IsEnabled = true;
-            _options.Size = SizeCombo.Text;
+            if (_options != null)
+            {
+                var index = SizeCombo.SelectedIndex;
+                _options.Size = (index < 0) ? "" : s_sizeList[index];
+                _options.SpecifySize = true;
+            }
         }
 
         /// <summary>
@@ -256,10 +295,13 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void SizeCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifySize = false;
             SizeLabel.IsEnabled = false;
             SizeCombo.IsEnabled = false;
-            _options.Size = "";
+            if (_options != null)
+            {
+                _options.Size = "";
+                _options.SpecifySize = false;
+            }
         }
 
         /// <summary>
@@ -269,7 +311,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void SizeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _options.Size = SizeCombo.Text;
+            if (_options != null)
+            {
+                _options.Size = s_sizeList[SizeCombo.SelectedIndex];
+            }
         }
 
         /// <summary>
@@ -279,10 +324,14 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void AspectCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyAspect = true;
             AspectLabel.IsEnabled = true;
             AspectCombo.IsEnabled = true;
-            _options.Aspect = AspectCombo.Text;
+            if (_options != null)
+            {
+                var index = AspectCombo.SelectedIndex;
+                _options.Aspect = (index < 0) ? "" : s_aspectList[index];
+                _options.SpecifyAspect = true;
+            }
         }
 
         /// <summary>
@@ -292,10 +341,13 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void AspectCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.SpecifyAspect = false;
             AspectLabel.IsEnabled = false;
             AspectCombo.IsEnabled = false;
-            _options.Aspect = "";
+            if (_options != null)
+            {
+                _options.Aspect = "";
+                _options.SpecifyAspect = false;
+            }
         }
 
         /// <summary>
@@ -305,7 +357,10 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void AspectCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _options.Aspect = AspectCombo.Text;
+            if (_options != null)
+            {
+                _options.Aspect = s_aspectList[AspectCombo.SelectedIndex];
+            }
         }
 
         /// <summary>
@@ -315,12 +370,15 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void Bitrate1stCheck_Checked(object sender, RoutedEventArgs e)
         {
-            _options.SetBitrate = true;
             AveBitrateDock.IsEnabled = true;
             MaxBitrateDock.IsEnabled = true;
             StatusLabel.Content = "";
-            _options.AveBitrate = (AveBitrateText.Text == "") ? 0 : int.Parse(AveBitrateText.Text);
-            _options.MaxBitrate = (MaxBitrateText.Text == "") ? 0 : int.Parse(MaxBitrateText.Text);
+            if (_options != null)
+            {
+                _options.AveBitrate = (AveBitrateText.Text == "") ? 0 : int.Parse(AveBitrateText.Text);
+                _options.MaxBitrate = (MaxBitrateText.Text == "") ? 0 : int.Parse(MaxBitrateText.Text);
+                _options.SetBitrate = true;
+            }
         }
 
         /// <summary>
@@ -330,12 +388,15 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void Bitrate1stCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            _options.SetBitrate = false;
-            AveBitrateDock.IsEnabled= false;
+            AveBitrateDock.IsEnabled = false;
             MaxBitrateDock.IsEnabled = false;
             StatusLabel.Content = "";
-            _options.AveBitrate = 0;
-            _options.MaxBitrate = 0;
+            if (_options != null)
+            {
+                _options.AveBitrate = 0;
+                _options.MaxBitrate = 0;
+                _options.SetBitrate = false;
+            }
         }
 
         /// <summary>
@@ -372,31 +433,34 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void AveBitrateText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
+            if (_options != null)
             {
-                var bitrate = int.Parse(AveBitrateText.Text);
-                if ((bitrate < MIN_BITRATE) || (bitrate > MAX_BITRATE))
+                try
+                {
+                    var bitrate = int.Parse(AveBitrateText.Text);
+                    if ((bitrate < MIN_BITRATE) || (bitrate > MAX_BITRATE))
+                    {
+                        AveBitrateText.Text = _options.AveBitrate.ToString();
+                        StatusLabel.Content = "ビットレートは1Mbps～300Mbpsの範囲として下さい。";
+                    }
+                    else
+                    {
+                        _options.AveBitrate = bitrate;
+                        AveBitrateSlider.Value = bitrate;
+                        if (_options.MaxBitrate < bitrate)
+                        {
+                            _options.MaxBitrate = bitrate;
+                            MaxBitrateText.Text = bitrate.ToString();
+                            MaxBitrateSlider.Value = bitrate;
+                        }
+                        StatusLabel.Content = "";
+                    }
+                }
+                catch
                 {
                     AveBitrateText.Text = _options.AveBitrate.ToString();
-                    StatusLabel.Content = "ビットレートは1Mbps～300Mbpsの範囲として下さい。";
+                    StatusLabel.Content = "ビットレートの入力は正数として下さい。";
                 }
-                else
-                {
-                    _options.AveBitrate = bitrate;
-                    AveBitrateSlider.Value = bitrate;
-                    if (_options.MaxBitrate < bitrate)
-                    {
-                        _options.MaxBitrate = bitrate;
-                        MaxBitrateText.Text = bitrate.ToString();
-                        MaxBitrateSlider.Value = bitrate;
-                    }
-                    StatusLabel.Content = "";
-                }
-            }
-            catch 
-            {
-                AveBitrateText.Text = _options.AveBitrate.ToString();
-                StatusLabel.Content = "ビットレートの入力は正数として下さい。";
             }
         }
 
@@ -411,25 +475,28 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void MaxBitrateText_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
+            if (_options != null)
             {
-                var bitrate = int.Parse(MaxBitrateText.Text);
-                if ((bitrate < _options.AveBitrate) || (bitrate > MAX_BITRATE))
+                try
+                {
+                    var bitrate = int.Parse(MaxBitrateText.Text);
+                    if ((bitrate < _options.AveBitrate) || (bitrate > MAX_BITRATE))
+                    {
+                        MaxBitrateText.Text = _options.MaxBitrate.ToString();
+                        StatusLabel.Content = "ビットレートは平均ビットレート～300Mbpsの範囲として下さい。";
+                    }
+                    else
+                    {
+                        _options.MaxBitrate = bitrate;
+                        MaxBitrateSlider.Value = bitrate;
+                        StatusLabel.Content = "";
+                    }
+                }
+                catch
                 {
                     MaxBitrateText.Text = _options.MaxBitrate.ToString();
-                    StatusLabel.Content = "ビットレートは平均ビットレート～300Mbpsの範囲として下さい。";
+                    StatusLabel.Content = "ビットレートの入力は正数として下さい。";
                 }
-                else
-                {
-                    _options.MaxBitrate = bitrate;
-                    MaxBitrateSlider.Value = bitrate;
-                    StatusLabel.Content = "";
-                }
-            }
-            catch
-            {
-                MaxBitrateText.Text = _options.MaxBitrate.ToString();
-                StatusLabel.Content = "ビットレートの入力は正数として下さい。";
             }
         }
 
@@ -444,16 +511,19 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void AveBitrateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var bitrate = (int)AveBitrateSlider.Value;
-            _options.AveBitrate = bitrate;
-            if (_options.MaxBitrate < bitrate)
+            if (_options != null)
             {
-                _options.MaxBitrate = bitrate;
-                MaxBitrateText.Text = bitrate.ToString();
-                MaxBitrateSlider.Value = bitrate;
+                var bitrate = (int)AveBitrateSlider.Value;
+                _options.AveBitrate = bitrate;
+                if (_options.MaxBitrate < bitrate)
+                {
+                    _options.MaxBitrate = bitrate;
+                    MaxBitrateText.Text = bitrate.ToString();
+                    MaxBitrateSlider.Value = bitrate;
+                }
+                AveBitrateText.Text = bitrate.ToString();
+                StatusLabel.Content = "";
             }
-            AveBitrateText.Text = bitrate.ToString();
-            StatusLabel.Content = "";
         }
 
         /// <summary>
@@ -467,15 +537,18 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void MaxBitrateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var bitrate = (int)MaxBitrateSlider.Value;
-            if (_options.AveBitrate > bitrate)
+            if (_options != null)
             {
-                bitrate = _options.AveBitrate;
-                MaxBitrateSlider.Value = bitrate;
+                var bitrate = (int)MaxBitrateSlider.Value;
+                if (_options.AveBitrate > bitrate)
+                {
+                    bitrate = _options.AveBitrate;
+                    MaxBitrateSlider.Value = bitrate;
+                }
+                _options.MaxBitrate = bitrate;
+                MaxBitrateText.Text = bitrate.ToString();
+                StatusLabel.Content = "";
             }
-            _options.MaxBitrate = bitrate;
-            MaxBitrateText.Text = bitrate.ToString();
-            StatusLabel.Content = "";
         }
     }
 }

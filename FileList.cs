@@ -366,7 +366,9 @@ namespace EasyFFmpeg
 
             try
             {
-                FileInfo fileInfo = new FileInfo(FileNameList[index]);
+                var file = FileNameList[index];
+                FileInfo fileInfo = new FileInfo(file);
+                info += $"  ファイル: {file}\n";
                 info += "  コンテナ情報\n";
                 info += $"    フォーマット: {fileInfo.Container}\n";
                 info += $"    再生時間: {fileInfo.Duration} 秒\n";
