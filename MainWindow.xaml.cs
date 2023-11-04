@@ -37,7 +37,11 @@ namespace EasyFFmpeg
         }
 
         /// <value>リストボックスに表示するファイル名のリスト</value>
-        private FileList _fileList = new FileList();
+        private VideoOptionsBox _videoOptionsDialog = new VideoOptionsBox(".mp4");
+        /// <value>リストボックスに表示するファイル名のリスト</value>
+        private AudioOptionsBox _audioOptionsDialog = new AudioOptionsBox(".mp4");
+        /// <value>リストボックスに表示するファイル名のリスト</value>
+        private FileList _fileList;
         /// <value>ビデオ出力の拡張子の選択されたインデックス</value>
         private int _videoOutputSelectedIndex = 0;
         /// <value>オーディオ出力の拡張子の選択されたインデックス</value>
@@ -45,6 +49,8 @@ namespace EasyFFmpeg
 
         public MainWindow()
         {
+            _fileList = new FileList(_videoOptionsDialog.Options, _audioOptionsDialog.Options);
+
             InitializeComponent();
 
             FromListBox.ItemsSource = _fileList.FileNameList;
@@ -282,13 +288,18 @@ namespace EasyFFmpeg
         {
             if (VideoRadio.IsChecked == true)
             {
+                var videoExtension = _fileList.GetVideoExtension(ExtensionComboBox.SelectedIndex);
                 _videoOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
                 _fileList.SetOutputExtension(_fileList.VideoExtensions[ExtensionComboBox.SelectedIndex]);
+                _videoOptionsDialog.SetOutputExtension(videoExtension);
+                _audioOptionsDialog.SetOutputExtension(videoExtension);
             }
             else    // (AudioRadio.IsChecked == true)
             {
+                var audioExtension = _fileList.GetAudioExtension(ExtensionComboBox.SelectedIndex);
                 _audioOutputSelectedIndex = ExtensionComboBox.SelectedIndex;
                 _fileList.SetOutputExtension(_fileList.AudioExtensions[ExtensionComboBox.SelectedIndex]);
+                _audioOptionsDialog.SetOutputExtension(audioExtension);
             }
         }
 
@@ -473,10 +484,9 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void VideoOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void VideoOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new VideoOptionsBox(_fileList.VideoOptions);
-            dialog.ShowDialog();
+            await DialogHost.Show(_videoOptionsDialog);
         }
 
         /// <summary>
@@ -484,10 +494,9 @@ namespace EasyFFmpeg
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AudioOptionsButton_Click(object sender, RoutedEventArgs e)
+        private async void AudioOptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new AudioOptionsBox(_fileList.AudioOptions);
-            dialog.ShowDialog();
+            await DialogHost.Show(_audioOptionsDialog);
         }
     }
 }

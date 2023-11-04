@@ -1,4 +1,4 @@
-﻿<Window x:Class="EasyFFmpeg.AudioOptionsBox"
+﻿<UserControl x:Class="EasyFFmpeg.AudioOptionsBox"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,52 +12,53 @@
         TextElement.FontWeight="Medium"
         TextElement.FontSize="14"
         FontFamily="{materialDesign:MaterialDesignFont}"
-        WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
-        MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        Title="AudioOptionsBox" Height="400" Width="600">
-    <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10,10,10,10" Background="White">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="10,10,10,7">
-                <materialDesign:PackIcon Kind="ContentCopy" HorizontalAlignment="Center" VerticalAlignment="Center" Width="32" Height="32" Foreground="BlueViolet"/>
-                <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}" Text="EasyFFmpeg Audio Options" Grid.Column="1" Margin="10,0,0,0" Foreground="BlueViolet"/>
-            </StackPanel>
-            <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="10,0,10,0" >
-                <GroupBox x:Name="ConvGroup" Margin="0,5,0,5" Header="変換" >
-                    <CheckBox x:Name="CopyCheck" Content=": 可能ならば変換せずにコピー" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="CopyCheck_Checked" Unchecked="CopyCheck_Unchecked"/>
-                </GroupBox>
-                <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
-                    <StackPanel Margin="0,0,0,5">
-                        <StackPanel x:Name="EncoderStack" Orientation="Horizontal" IsEnabled="False" >
-                            <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
-                            <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
+        Background="Transparent"
+        Height="400" Width="600">
+    <materialDesign:Card>
+        <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10,10,10,10" Background="White">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="10,10,10,7">
+                    <materialDesign:PackIcon Kind="ContentCopy" HorizontalAlignment="Center" VerticalAlignment="Center" Width="32" Height="32" Foreground="BlueViolet"/>
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}" Text="EasyFFmpeg Audio Options" Grid.Column="1" Margin="10,0,0,0" Foreground="BlueViolet"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="10,0,10,0" >
+                    <GroupBox x:Name="ConvGroup" Margin="0,5,0,5" Header="変換" >
+                        <CheckBox x:Name="CopyCheck" Content=": 可能ならば変換せずにコピー" IsChecked="True" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="CopyCheck_Checked" Unchecked="CopyCheck_Unchecked"/>
+                    </GroupBox>
+                    <GroupBox x:Name="OutputGroup" Header="エンコーダー" Margin="0,5,0,0">
+                        <StackPanel Margin="0,0,0,5">
+                            <StackPanel x:Name="EncoderStack" Orientation="Horizontal" IsEnabled="False" >
+                                <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
+                                <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
+                            </StackPanel>
+                            <StackPanel x:Name="ChannelStack" Orientation="Horizontal" Margin="-5,5,0,5" >
+                                <Label Content="チャンネル指定: "/>
+                                <RadioButton x:Name="ChannelDefaultRadio" Content="デフォルト" IsChecked="True" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelDefaultRadio_Checked" />
+                                <RadioButton x:Name="ChannelMonoRadio" Content="モノラル" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelMonoRadio_Checked" />
+                                <RadioButton x:Name="ChannelStereoRadio" Content="ステレオ" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelStereoRadio_Checked" />
+                            </StackPanel>
+                            <StackPanel x:Name="SamplingStack" Margin="0,5,0,5" Orientation="Horizontal" >
+                                <CheckBox x:Name="SamplingCheck" Content=": サンプリングレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="SamplingCheck_Checked" Unchecked="SamplingCheck_Unchecked" />
+                                <Label x:Name="SamplingLabel" Content="サンプリングレート: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="SamplingCombo" IsEnabled="False" SelectionChanged="SamplingCombo_SelectionChanged" />
+                            </StackPanel>
+                            <StackPanel x:Name="BitrateStack" Margin="0,5,0,5" Orientation="Horizontal" IsEnabled="False" >
+                                <CheckBox x:Name="BitrateCheck" Content=": ビットレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="BitrateCheck_Checked" Unchecked="BitrateCheck_Unchecked" />
+                                <Label x:Name="BitrateLabel" Content="ビットレート: " Margin="0,0,5,0" IsEnabled="False" />
+                                <ComboBox x:Name="BitrateCombo" IsEnabled="False" SelectionChanged="BitrateCombo_SelectionChanged" />
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel x:Name="ChannelStack" Orientation="Horizontal" Margin="-5,5,0,5" >
-                            <Label Content="チャンネル指定: "/>
-                            <RadioButton x:Name="ChannelDefaultRadio" Content="デフォルト" IsChecked="True" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelDefaultRadio_Checked" />
-                            <RadioButton x:Name="ChannelMonoRadio" Content="モノラル" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelMonoRadio_Checked" />
-                            <RadioButton x:Name="ChannelStereoRadio" Content="ステレオ" Padding="0,0,5,0" GroupName="ChannelGroup" Checked="ChannelStereoRadio_Checked" />
-                        </StackPanel>
-                        <StackPanel x:Name="SamplingStack" Margin="0,5,0,5" Orientation="Horizontal" >
-                            <CheckBox x:Name="SamplingCheck" Content=": サンプリングレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="SamplingCheck_Checked" Unchecked="SamplingCheck_Unchecked" />
-                            <Label x:Name="SamplingLabel" Content="サンプリングレート: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="SamplingCombo" IsEnabled="False" SelectionChanged="SamplingCombo_SelectionChanged" />
-                        </StackPanel>
-                        <StackPanel x:Name="BitrateStack" Margin="0,5,0,5" Orientation="Horizontal" IsEnabled="False" >
-                            <CheckBox x:Name="BitrateCheck" Content=": ビットレート指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="BitrateCheck_Checked" Unchecked="BitrateCheck_Unchecked" />
-                            <Label x:Name="BitrateLabel" Content="ビットレート: " Margin="0,0,5,0" IsEnabled="False" />
-                            <ComboBox x:Name="BitrateCombo" IsEnabled="False" SelectionChanged="BitrateCombo_SelectionChanged" />
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-            </StackPanel>
-            <Button x:Name="OKButton" Content="OK" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,10,10"
-            Style="{StaticResource MaterialDesignRaisedLightButton}" Click="OKButton_Click"/>
-        </Grid>
-    </Border>
-</Window>
+                    </GroupBox>
+                </StackPanel>
+                <Button x:Name="OKButton" Content="OK" IsDefault="True" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,10,10"
+            Style="{StaticResource MaterialDesignRaisedLightButton}" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"/>
+            </Grid>
+        </Border>
+    </materialDesign:Card>
+</UserControl>

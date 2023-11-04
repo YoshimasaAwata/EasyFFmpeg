@@ -17,7 +17,7 @@ namespace EasyFFmpeg
     /// <summary>
     /// AudioOptionsBox.xaml の相互作用ロジック
     /// </summary>
-    public partial class AudioOptionsBox : Window
+    public partial class AudioOptionsBox : UserControl
     {
         /// <value>オーディオのコーデックとエンコーダーの辞書</value>
         private static readonly Dictionary<string, string[]> s_encoderDic = new Dictionary<string, string[]>()
@@ -49,69 +49,52 @@ namespace EasyFFmpeg
         };
 
         /// <value>オーディオのオプション</value>
-        private AudioOptions? _options = null;
+        public AudioOptions Options { get; set; } = new AudioOptions();
 
-        /// <param name="options">オーディオのオプション</param>
-        public AudioOptionsBox(AudioOptions options)
+        /// <param name="outputExtension">出力の拡張子</param>
+        public AudioOptionsBox(string outputExtension)
         {
 
             InitializeComponent();
 
-            _options = options;
-
-            var encoderList = s_encoderDic[options.Codec];
-
-            OutputGroup.Header = $"エンコーダー({options.Codec})";
-
-            CopyCheck.IsChecked = _options.CopyAudio;
-            EncoderStack.IsEnabled = (encoderList.Length > 1);
-            EncoderCheck.IsChecked = options.SpecifyEncoder;
-            EncoderLabel.IsEnabled = options.SpecifyEncoder;
-            EncoderCombo.IsEnabled = options.SpecifyEncoder;
-            EncoderCombo.ItemsSource = encoderList;
-            EncoderCombo.SelectedIndex = (options.Encoder == "") ? 0 : Array.IndexOf(encoderList, options.Encoder);
-            ChannelDefaultRadio.IsChecked = (options.Channel == 0);
-            ChannelMonoRadio.IsChecked = (options.Channel == 1);
-            ChannelStereoRadio.IsChecked = (options.Channel == 2);
-            SamplingCheck.IsChecked = options.SpecifySampling;
-            SamplingLabel.IsEnabled = options.SpecifySampling;
-            SamplingCombo.IsEnabled = options.SpecifySampling;
-            SamplingCombo.ItemsSource = s_samplingList;
-            // サンプリングレートは48kを推奨
-            SamplingCombo.SelectedIndex = (options.Sampling == "") ? 4 : Array.IndexOf(s_samplingList, options.Sampling);
-            BitrateStack.IsEnabled = (Array.IndexOf(s_noBitrateCodec, _options.Codec) < 0);
-            BitrateCheck.IsChecked = options.SetBitrate;
-            BitrateLabel.IsEnabled = options.SetBitrate;
-            BitrateCombo.IsEnabled = options.SetBitrate;
-            BitrateCombo.ItemsSource = s_bitrateList;
-            // ビットレートは384kbpsを推奨
-            BitrateCombo.SelectedIndex = (options.Bitrate == "") ? 7 : Array.IndexOf(s_bitrateList, options.Bitrate);
+            SetOutputExtension(outputExtension);
         }
 
-        /// <summary>
-        /// ウィンドウをドラッグして移動
-        /// </summary>
-        /// <remarks>
-        /// マウスボタンがリリースされた後にコールされる場合があるのでマウスボタンが押されている事をチェック
-        /// </remarks>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void SetOutputExtension(string extension)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            if (Options.OutputExtension != extension)
             {
-                DragMove();
-            }
-        }
+                Options.OutputExtension = extension;
 
-        /// <summary>
-        /// AudioOptionsBoxをクローズ
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OKButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+                var encoderList = s_encoderDic[Options.Codec];
+
+                OutputGroup.Header = $"エンコーダー({Options.Codec})";
+
+                CopyCheck.IsChecked = Options.CopyAudio;
+                EncoderStack.IsEnabled = (encoderList.Length > 1);
+                EncoderCheck.IsChecked = Options.SpecifyEncoder;
+                EncoderLabel.IsEnabled = Options.SpecifyEncoder;
+                EncoderCombo.IsEnabled = Options.SpecifyEncoder;
+                EncoderCombo.ItemsSource = encoderList;
+                // エンコーダーはリストの最初がお勧め
+                EncoderCombo.SelectedIndex = (Options.Encoder == "") ? 0 : Array.IndexOf(encoderList, Options.Encoder);
+                ChannelDefaultRadio.IsChecked = (Options.Channel == 0);
+                ChannelMonoRadio.IsChecked = (Options.Channel == 1);
+                ChannelStereoRadio.IsChecked = (Options.Channel == 2);
+                SamplingCheck.IsChecked = Options.SpecifySampling;
+                SamplingLabel.IsEnabled = Options.SpecifySampling;
+                SamplingCombo.IsEnabled = Options.SpecifySampling;
+                SamplingCombo.ItemsSource = s_samplingList;
+                // サンプリングレートは48kを推奨
+                SamplingCombo.SelectedIndex = (Options.Sampling == "") ? 4 : Array.IndexOf(s_samplingList, Options.Sampling);
+                BitrateStack.IsEnabled = (Array.IndexOf(s_noBitrateCodec, Options.Codec) < 0);
+                BitrateCheck.IsChecked = Options.SetBitrate;
+                BitrateLabel.IsEnabled = Options.SetBitrate;
+                BitrateCombo.IsEnabled = Options.SetBitrate;
+                BitrateCombo.ItemsSource = s_bitrateList;
+                // ビットレートは384kbpsを推奨
+                BitrateCombo.SelectedIndex = (Options.Bitrate == "") ? 7 : Array.IndexOf(s_bitrateList, Options.Bitrate);
+            }
         }
 
         /// <summary>
@@ -121,10 +104,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CopyCheck_Checked(object sender, RoutedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.CopyAudio = true;
-            }
+            Options.CopyAudio = true;
         }
 
         /// <summary>
@@ -134,10 +114,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void CopyCheck_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.CopyAudio = false;
-            }
+            Options.CopyAudio = false;
         }
 
         /// <summary>
@@ -149,12 +126,10 @@ namespace EasyFFmpeg
         {
             EncoderLabel.IsEnabled = true;
             EncoderCombo.IsEnabled = true;
-            if (_options != null)
-            {
-                var index = EncoderCombo.SelectedIndex;
-                _options.Encoder = (index < 0) ? "" : s_encoderDic[_options.Codec][index];
-                _options.SpecifyEncoder = true;
-            }
+
+            var index = EncoderCombo.SelectedIndex;
+            Options.Encoder = (index < 0) ? "" : s_encoderDic[Options.Codec][index];
+            Options.SpecifyEncoder = true;
         }
 
         /// <summary>
@@ -166,11 +141,9 @@ namespace EasyFFmpeg
         {
             EncoderLabel.IsEnabled = false;
             EncoderCombo.IsEnabled = false;
-            if (_options != null)
-            {
-                _options.Encoder = "";
-                _options.SpecifyEncoder = false;
-            }
+
+            Options.Encoder = "";
+            Options.SpecifyEncoder = false;
         }
 
         /// <summary>
@@ -180,10 +153,8 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void EncoderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Encoder = s_encoderDic[_options.Codec][EncoderCombo.SelectedIndex];
-            }
+            var index = EncoderCombo.SelectedIndex;
+            Options.Encoder = (index < 0) ? "" : s_encoderDic[Options.Codec][index];
         }
 
         /// <summary>
@@ -193,10 +164,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void ChannelDefaultRadio_Checked(object sender, RoutedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Channel = 0;
-            }
+            Options.Channel = 0;
         }
 
         /// <summary>
@@ -206,10 +174,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void ChannelMonoRadio_Checked(object sender, RoutedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Channel = 1;
-            }
+            Options.Channel = 1;
         }
 
         /// <summary>
@@ -219,10 +184,7 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void ChannelStereoRadio_Checked(object sender, RoutedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Channel = 2;
-            }
+            Options.Channel = 2;
         }
 
         /// <summary>
@@ -234,12 +196,10 @@ namespace EasyFFmpeg
         {
             SamplingLabel.IsEnabled = true;
             SamplingCombo.IsEnabled = true;
+
             var index = SamplingCombo.SelectedIndex;
-            if (_options != null)
-            {
-                _options.Sampling = (index < 0) ? "" : s_samplingList[index];
-                _options.SpecifySampling = true;
-            }
+            Options.Sampling = (index < 0) ? "" : s_samplingList[index];
+            Options.SpecifySampling = true;
         }
 
         /// <summary>
@@ -251,11 +211,9 @@ namespace EasyFFmpeg
         {
             SamplingLabel.IsEnabled = false;
             SamplingCombo.IsEnabled = false;
-            if (_options != null)
-            {
-                _options.Sampling = "";
-                _options.SpecifySampling = false;
-            }
+
+            Options.Sampling = "";
+            Options.SpecifySampling = false;
         }
 
         /// <summary>
@@ -265,10 +223,8 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void SamplingCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Sampling = s_samplingList[SamplingCombo.SelectedIndex];
-            }
+            var index = SamplingCombo.SelectedIndex;
+            Options.Sampling = (index < 0) ? "" : s_samplingList[index];
         }
 
         /// <summary>
@@ -280,12 +236,10 @@ namespace EasyFFmpeg
         {
             BitrateLabel.IsEnabled = true;
             BitrateCombo.IsEnabled = true;
+
             var index = BitrateCombo.SelectedIndex;
-            if (_options != null)
-            {
-                _options.Bitrate = (index < 0) ? "" : s_bitrateList[index];
-                _options.SetBitrate = true;
-            }
+            Options.Bitrate = (index < 0) ? "" : s_bitrateList[index];
+            Options.SetBitrate = true;
         }
 
         /// <summary>
@@ -297,11 +251,9 @@ namespace EasyFFmpeg
         {
             BitrateLabel.IsEnabled = false;
             BitrateCombo.IsEnabled = false;
-            if (_options != null)
-            {
-                _options.Bitrate = "";
-                _options.SetBitrate = false;
-            }
+
+            Options.Bitrate = "";
+            Options.SetBitrate = false;
         }
 
         /// <summary>
@@ -311,10 +263,8 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void BitrateCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_options != null)
-            {
-                _options.Bitrate = s_bitrateList[BitrateCombo.SelectedIndex];
-            }
+            var index = BitrateCombo.SelectedIndex;
+            Options.Bitrate = (index < 0) ? "" : s_bitrateList[index];
         }
     }
 }

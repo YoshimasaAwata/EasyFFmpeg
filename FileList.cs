@@ -57,23 +57,42 @@ namespace EasyFFmpeg
         /// <value>引数の履歴</value>
         public StringBuilder ArgumentsHistory { get; private set; } = new StringBuilder();
 
-        public FileList()
+        public FileList(VideoOptions video, AudioOptions audio)
         {
-            VideoOptions = new VideoOptions(Extension);
-            AudioOptions = new AudioOptions(Extension);
+            VideoOptions = video;
+            AudioOptions = audio;
         }
 
+        /// <summary>
+        /// ビデオの拡張子のリストからインデックスで拡張子を取得
+        /// </summary>
+        /// <param name="index">拡張子を指定するインデックス</param>
+        /// <returns>ビデオの拡張子</returns>
+        public string GetVideoExtension(int index)
+        {
+            return VideoExtensions[index];
+        }
+
+        /// <summary>
+        /// オーディオの拡張子のリストからインデックスで拡張子を取得
+        /// </summary>
+        /// <param name="index">拡張子を指定するインデックス</param>
+        /// <returns>オーディオの拡張子</returns>
+        public string GetAudioExtension(int index)
+        {
+            return AudioExtensions[index];
+        }
+
+        /// <summary>
+        /// 出力の拡張子を設定
+        /// </summary>
+        /// <param name="outputExtension">出力の拡張子</param>
         public void SetOutputExtension(string? outputExtension)
         {
             if (outputExtension != null)
             {
                 UseVideoCodec = VideoExtensions.Contains(outputExtension);
-                if (Extension != outputExtension)
-                {
-                    Extension = outputExtension;
-                    VideoOptions.OutputExtension = outputExtension;
-                    AudioOptions.OutputExtension = outputExtension;
-                }
+                Extension = outputExtension;
             }
         }
 

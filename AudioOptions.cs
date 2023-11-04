@@ -33,7 +33,7 @@ namespace EasyFFmpeg
         };
 
         /// <value>出力ファイルの拡張子</value>
-        private string _outputExtension;
+        private string _outputExtension = "";
         public string OutputExtension
         {
             get => _outputExtension;
@@ -44,7 +44,7 @@ namespace EasyFFmpeg
                     _outputExtension = value;
                     if ((!s_codecDic.ContainsKey(value)) || (Codec != s_codecDic[value]))
                     {
-                        Initialize();
+                        InitializeEncoderParams();
                     }
                 }
             }
@@ -70,19 +70,12 @@ namespace EasyFFmpeg
         /// <value>オーディオ出力に対する引数</value>
         public string Arguments { get; set; } = "";
 
-        /// <param name="Extension">出力ファイルの拡張子</param>
-        public AudioOptions(string Extension)
-        {
-            _outputExtension = Extension;
-            Codec = s_codecDic[Extension];
-        }
-
         /// <summary>
         /// 各プロパティを初期化
         /// </summary>
-        public void Initialize()
+        public void InitializeEncoderParams()
         {
-            CopyAudio = true;
+            // CopyAudioはエンコーダーに関係ないのでそのまま
             Codec = s_codecDic[_outputExtension];
             SpecifyEncoder = false;
             Encoder = "";
