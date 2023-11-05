@@ -24,7 +24,7 @@ namespace EasyFFmpeg
         /// <value>ビデオのコーデックとエンコーダーの辞書</value>
         private static readonly Dictionary<string, string[]> s_encoderDic = new Dictionary<string, string[]>()
         {
-            {"h264", new []{ "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv", "libx264", }},
+            {"h264", new []{"libx264", "libopenh264", "h264_amf", "h264_mf", "h264_nvenc", "h264_qsv", }},
             {"msmpeg4v3", new []{"msmpeg4", }},
             {"mpeg4", new []{"mpeg4", "libxvid", }},
             {"flv1", new []{"flv", }},
@@ -104,7 +104,9 @@ namespace EasyFFmpeg
                 AspectCombo.ItemsSource = s_aspectList;
                 // アスペクト比は16:9を標準とする
                 AspectCombo.SelectedIndex = (Options.Aspect == "") ? 1 : Array.IndexOf(s_aspectList, Options.Aspect);
-                Bitrate1stCheck.IsChecked = Options.SetBitrate;
+                QualityDefaultRadio.IsChecked = ((!Options.SetBitrate) && (!Options.ConstantQuality));
+                QualityBitrateRadio.IsChecked = Options.SetBitrate;
+                QualityImageRadio.IsChecked = Options.ConstantQuality;
                 AveBitrateDock.IsEnabled = Options.SetBitrate;
                 MaxBitrateDock.IsEnabled = Options.SetBitrate;
                 AveBitrateText.Text = Options.AveBitrate.ToString();
@@ -312,15 +314,35 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
+        /// ビットレートの指定をデフォルトに戻す
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void QualityDefaultRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            AveBitrateDock.IsEnabled = false;
+            MaxBitrateDock.IsEnabled = false;
+            StatusLabel.Content = "";
+
+            Options.ConstantQuality = false;
+
+            Options.AveBitrate = 0;
+            Options.MaxBitrate = 0;
+            Options.SetBitrate = false;
+        }
+
+        /// <summary>
         /// ビットレートの指定を有効にする
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Bitrate1stCheck_Checked(object sender, RoutedEventArgs e)
+        private void QualityBitrateRadio_Checked(object sender, RoutedEventArgs e)
         {
             AveBitrateDock.IsEnabled = true;
             MaxBitrateDock.IsEnabled = true;
             StatusLabel.Content = "";
+
+            Options.ConstantQuality = false;
 
             Options.AveBitrate = (AveBitrateText.Text == "") ? 0 : int.Parse(AveBitrateText.Text);
             Options.MaxBitrate = (MaxBitrateText.Text == "") ? 0 : int.Parse(MaxBitrateText.Text);
@@ -328,15 +350,17 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// ビットレートの指定を無効にする
+        /// 画質優先の指定を有効にする
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Bitrate1stCheck_Unchecked(object sender, RoutedEventArgs e)
+        private void QualityImageRadio_Checked(object sender, RoutedEventArgs e)
         {
             AveBitrateDock.IsEnabled = false;
             MaxBitrateDock.IsEnabled = false;
             StatusLabel.Content = "";
+
+            Options.ConstantQuality = true;
 
             Options.AveBitrate = 0;
             Options.MaxBitrate = 0;

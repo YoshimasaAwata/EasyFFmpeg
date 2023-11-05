@@ -44,7 +44,7 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel x:Name="EncoderStack" Orientation="Horizontal" IsEnabled="False" Grid.ColumnSpan="2" >
-                                    <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="0,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
+                                    <CheckBox x:Name="EncoderCheck" Content=": エンコーダー指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5,0,0,5" Checked="EncoderCheck_Checked" Unchecked="EncoderCheck_Unchecked" />
                                     <Label x:Name="EncoderLabel" Content="エンコーダー: " Margin="0,0,5,0" IsEnabled="False" />
                                     <ComboBox x:Name="EncoderCombo" IsEnabled="False" SelectionChanged="EncoderCombo_SelectionChanged" />
                                 </StackPanel>
@@ -61,7 +61,7 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel x:Name="SizeStack" Orientation="Horizontal" >
-                                    <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="SizeCheck_Checked" Unchecked="SizeCheck_Unchecked" />
+                                    <CheckBox x:Name="SizeCheck" Content=": 画像サイズ指定" FlowDirection="RightToLeft" HorizontalAlignment="Left" Checked="SizeCheck_Checked" Unchecked="SizeCheck_Unchecked" Margin="5,0,0,0" />
                                     <Label x:Name="SizeLabel" Content="画像サイズ: " Margin="0,0,5,0" IsEnabled="False" />
                                     <ComboBox x:Name="SizeCombo" IsEnabled="False" SelectionChanged="SizeCombo_SelectionChanged" />
                                 </StackPanel>
@@ -72,7 +72,10 @@
                                 </StackPanel>
                             </Grid>
                             <StackPanel Margin="0,5,0,5" Orientation="Horizontal">
-                                <CheckBox x:Name="Bitrate1stCheck" Content=": ビットレート優先" FlowDirection="RightToLeft" Checked="Bitrate1stCheck_Checked" Unchecked="Bitrate1stCheck_Unchecked" HorizontalAlignment="Left" Margin="0,0,0,5" />
+                                <Label Content="画質設定: "/>
+                                <RadioButton x:Name="QualityDefaultRadio" Content="デフォルト" GroupName="Quality" Margin="5,0,5,0" IsChecked="False" Checked="QualityDefaultRadio_Checked"/>
+                                <RadioButton x:Name="QualityBitrateRadio" Content="ビットレート優先" GroupName="Quality" Margin="5,0,5,-1" Checked="QualityBitrateRadio_Checked"/>
+                                <RadioButton x:Name="QualityImageRadio" Content="画質優先" GroupName="Quality" Margin="5,0,5,0" Checked="QualityImageRadio_Checked"/>
                                 <Label x:Name="StatusLabel" Margin="5,0,0,0" Foreground="Red"/>
                             </StackPanel>
                             <DockPanel x:Name="AveBitrateDock" Margin="0,5,0,5" IsEnabled="False">

@@ -25,6 +25,26 @@ namespace EasyFFmpeg
             {".webm", "vp9"},
         };
 
+        /// <value>エンコーダーと品質指定オプションの辞書</value>
+        private static readonly Dictionary<string, string> s_qualitySettings = new Dictionary<string, string>()
+        {
+            {"libopenh264", "" },                   // -rc_mode 0 (quality mode) default
+            {"h264_amf", "-quality 2 "},            // Prefer Quality
+            {"h264_mf", "-rate_control 3 "},        // Quality mode
+            {"h264_nvenc", "-preset 17 "},          // slower (better quality)
+            {"h264_qsv", "-preset 2 "},             // slower
+            {"libx264", "-preset slower -crf 18 "},
+            {"msmpeg4", "-q:v 4 "},
+            {"mpeg4", "-q:v 4 "},
+            {"libxvid", "-q:v 4 "},
+            {"flv", "-crf 18"},                     // 怪しい "-q:v 4 "の方が良いか?
+            {"libtheora", "-q:v 7"},
+            {"mpeg2video", ""},
+            {"mpeg2_qsv", "-preset 2 "},            // slower
+            {"libvpx-vp9", "-b:v 0 -crf 30"},       // とりあえず例に上がっていた設定
+            {"vp9_qsv", "-preset 2 "},              // slower
+       };
+
         /// <value>出力ファイルの拡張子</value>
         private string _outputExtension = "";
         public string OutputExtension
@@ -47,7 +67,7 @@ namespace EasyFFmpeg
         /// <value>ビデオ変換時にコピーができればコピーする</value>
         public bool CopyVideo { get; set; } = true;
         /// <value>コーデックを指定する</value>
-        public string Codec { get; set; }
+        public string Codec { get; set; } = "";
         /// <value>エンコーダーを指定する</value>
         public bool SpecifyEncoder { get; set; } = false;
         /// <value>使用するエンコーダー</value>
@@ -70,6 +90,9 @@ namespace EasyFFmpeg
         public int AveBitrate { get; set; } = 1;
         /// <value>最大ビットレート</value>
         public int MaxBitrate { get; set; } = 1;
+
+        /// <value>一定品質指定</value>
+        public bool ConstantQuality { get; set; } = false;
         /// <value>ビデオ出力に対する引数</value>
         public string Arguments { get; set; } = "";
 
@@ -88,6 +111,7 @@ namespace EasyFFmpeg
             Size = "";
             SpecifyAspect = false;
             Aspect = "";
+            ConstantQuality = false;
             SetBitrate = false;
             AveBitrate = 0;
             MaxBitrate = 0;
@@ -116,6 +140,7 @@ namespace EasyFFmpeg
                 var originalSize = info.VideoWidth + "x" + info.VideoHeight;
                 doCopy &= (!SpecifySize) || (originalSize == Size);
                 doCopy &= (!SpecifyAspect);
+                doCopy &= (!ConstantQuality);
                 doCopy &= (!SetBitrate);
                 // アスペクト比とビットレートは設定値に関係なく指定した時点でコピー不可とする
 
@@ -164,6 +189,10 @@ namespace EasyFFmpeg
                 if (SpecifyAspect && (Aspect != ""))
                 {
                     Arguments += $"-aspect {Aspect} ";
+                }
+                if (ConstantQuality && (s_qualitySettings.ContainsKey(Encoder)))
+                {
+                    Arguments += s_qualitySettings[Encoder];
                 }
                 if (SetBitrate)
                 {
