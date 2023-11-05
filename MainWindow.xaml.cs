@@ -218,6 +218,7 @@ namespace EasyFFmpeg
             DisableButtons();
 
             _fileList.ClearArgumentsNote();
+            _fileList.AdditionalOptions = OptionsText.Text;
 
             var count = _fileList.FileNameList.Count;
 
@@ -252,8 +253,6 @@ namespace EasyFFmpeg
 
             var infoDialog = new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました");
             infoDialog.ShowDialog();
-
-//            await DialogHost.Show(new InfoBox(_fileList.ArgumentsHistory.ToString(), "変換が終了しました"));
 
             EnableButtons();
         }

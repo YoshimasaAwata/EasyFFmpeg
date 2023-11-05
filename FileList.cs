@@ -54,6 +54,15 @@ namespace EasyFFmpeg
         public VideoOptions VideoOptions { get; set; }
         /// <value>オーディオオプション</value>
         public AudioOptions AudioOptions { get; set; }
+        /// <value>追加のオプション</value>
+        private string _additionalOptions = "";
+        public string AdditionalOptions { 
+            get => _additionalOptions;
+            set
+            {
+                _additionalOptions = value.Trim() + " ";
+            } 
+        }
         /// <value>引数の履歴</value>
         public StringBuilder ArgumentsHistory { get; private set; } = new StringBuilder();
 
@@ -162,6 +171,7 @@ namespace EasyFFmpeg
             }
             args += AudioOptions.CreateArguments(firstFile, true);
             args += $" -filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
+            args += AdditionalOptions;
             args += $"{ToFileName(firstFile)}";
 
             return args;
@@ -233,6 +243,7 @@ namespace EasyFFmpeg
                 args += VideoOptions.CreateArguments(file);
             }
             args += AudioOptions.CreateArguments(file);
+            args += AdditionalOptions;
             args += $"{ToFileName(file)}";
 
             return args;
