@@ -82,13 +82,13 @@
                                 <Label Content="平均ビットレート: " Margin="0,0,5,0"/>
                                 <TextBox x:Name="AveBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="AveBitrateText_TextChanged" />
                                 <Label Content="Mbps" Margin="0,0,5,0" />
-                                <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" LargeChange="10" SmallChange="1" ValueChanged="AveBitrateSlider_ValueChanged" />
+                                <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" LargeChange="1" SmallChange="0.1" ValueChanged="AveBitrateSlider_ValueChanged" />
                             </DockPanel>
                             <DockPanel x:Name="MaxBitrateDock" Margin="0,5,0,0" IsEnabled="False">
                                 <Label Content="最大ビットレート: " Margin="0,0,5,0"/>
                                 <TextBox x:Name="MaxBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="MaxBitrateText_TextChanged"/>
                                 <Label Content="Mbps" Margin="0,0,5,0" />
-                                <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" LargeChange="10" SmallChange="1" ValueChanged="MaxBitrateSlider_ValueChanged" />
+                                <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" LargeChange="1" SmallChange="0.1" ValueChanged="MaxBitrateSlider_ValueChanged" />
                             </DockPanel>
                         </StackPanel>
                     </GroupBox>

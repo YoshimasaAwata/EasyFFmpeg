@@ -86,10 +86,10 @@ namespace EasyFFmpeg
         public string Aspect { get; set; } = "";
         /// <value>CBR指定</value>
         public bool SetBitrate { get; set; } = false;
-        /// <value>平均ビットレート</value>
-        public int AveBitrate { get; set; } = 1;
-        /// <value>最大ビットレート</value>
-        public int MaxBitrate { get; set; } = 1;
+        /// <value>平均ビットレート(kbps)</value>
+        public int AveBitrate { get; set; } = 1000;
+        /// <value>最大ビットレート(kbps)</value>
+        public int MaxBitrate { get; set; } = 1000;
 
         /// <value>一定品質指定</value>
         public bool ConstantQuality { get; set; } = false;
@@ -196,7 +196,7 @@ namespace EasyFFmpeg
                 }
                 if (SetBitrate)
                 {
-                    Arguments += $"-b:v {AveBitrate}M -maxrate {MaxBitrate}M ";
+                    Arguments += $"-b:v {AveBitrate}k -maxrate {MaxBitrate}k ";
                 }
             }
 

@@ -46,9 +46,9 @@ namespace EasyFFmpeg
         private static readonly string[] s_aspectList = { "4:3", "16:9", };
 
         /// <value>最大ビットレート(Mbps)</value>
-        private const int MAX_BITRATE = 300;
+        private const double MAX_BITRATE = 35.0;
         /// <value>最小ビットレート(Mbps)</value>
-        private const int MIN_BITRATE = 1;
+        private const double MIN_BITRATE = 0.1;
 
         /// <value>ビデオのオプション</value>
         public VideoOptions Options { get; set; } = new VideoOptions();
@@ -394,7 +394,7 @@ namespace EasyFFmpeg
         /// 平均ビットレートの入力
         /// </summary>
         /// <remarks>
-        /// 入力は正数で1Mbps～300Mbpsの範囲<br/>
+        /// 入力は正数で0.1Mbps～35Mbpsの範囲<br/>
         /// 最大ビットレートが平均ビットレート以上となるように最大ビットレートを調整
         /// </remarks>
         /// <param name="sender"></param>
@@ -403,19 +403,21 @@ namespace EasyFFmpeg
         {
             try
             {
-                var bitrate = int.Parse(AveBitrateText.Text);
-                if ((bitrate < MIN_BITRATE) || (bitrate > MAX_BITRATE))
+                var mbitrate = double.Parse(AveBitrateText.Text);
+                var kbitrate = (int)(mbitrate * 1000);
+                if ((kbitrate < MIN_BITRATE) || (kbitrate > MAX_BITRATE))
                 {
-                    AveBitrateText.Text = Options.AveBitrate.ToString();
-                    StatusLabel.Content = "ビットレートは1Mbps～300Mbpsの範囲として下さい。";
+                    AveBitrateText.Text = (Options.AveBitrate / 1000).ToString();
+                    StatusLabel.Content = "ビットレートは0.1Mbps～35Mbpsの範囲として下さい。";
                 }
                 else
                 {
-                    Options.AveBitrate = bitrate;
+                    var bitrate = kbitrate / 1000;
+                    Options.AveBitrate = kbitrate;
                     AveBitrateSlider.Value = bitrate;
-                    if (Options.MaxBitrate < bitrate)
+                    if (Options.MaxBitrate < kbitrate)
                     {
-                        Options.MaxBitrate = bitrate;
+                        Options.MaxBitrate = kbitrate;
                         MaxBitrateText.Text = bitrate.ToString();
                         MaxBitrateSlider.Value = bitrate;
                     }
@@ -424,7 +426,7 @@ namespace EasyFFmpeg
             }
             catch
             {
-                AveBitrateText.Text = Options.AveBitrate.ToString();
+                AveBitrateText.Text = (Options.AveBitrate / 1000).ToString();
                 StatusLabel.Content = "ビットレートの入力は正数として下さい。";
             }
         }
@@ -433,7 +435,7 @@ namespace EasyFFmpeg
         /// 最大ビットレートの入力
         /// </summary>
         /// <remarks>
-        /// 入力は正数で1Mbps～300Mbpsの範囲<br/>
+        /// 入力は正数で0.1Mbps～35Mbpsの範囲<br/>
         /// ただし最大ビットレートが平均ビットレート以上
         /// </remarks>
         /// <param name="sender"></param>
@@ -442,22 +444,23 @@ namespace EasyFFmpeg
         {
             try
             {
-                var bitrate = int.Parse(MaxBitrateText.Text);
-                if ((bitrate < Options.AveBitrate) || (bitrate > MAX_BITRATE))
+                var mbitrate = double.Parse(MaxBitrateText.Text);
+                var kbitrate = (int)(mbitrate * 1000);
+                if ((kbitrate < Options.AveBitrate) || (kbitrate > MAX_BITRATE))
                 {
-                    MaxBitrateText.Text = Options.MaxBitrate.ToString();
-                    StatusLabel.Content = "ビットレートは平均ビットレート～300Mbpsの範囲として下さい。";
+                    MaxBitrateText.Text = (Options.MaxBitrate / 1000).ToString();
+                    StatusLabel.Content = "ビットレートは平均ビットレート～35Mbpsの範囲として下さい。";
                 }
                 else
                 {
-                    Options.MaxBitrate = bitrate;
-                    MaxBitrateSlider.Value = bitrate;
+                    Options.MaxBitrate = kbitrate;
+                    MaxBitrateSlider.Value = kbitrate / 1000;
                     StatusLabel.Content = "";
                 }
             }
             catch
             {
-                MaxBitrateText.Text = Options.MaxBitrate.ToString();
+                MaxBitrateText.Text = (Options.MaxBitrate / 1000).ToString();
                 StatusLabel.Content = "ビットレートの入力は正数として下さい。";
             }
         }
@@ -466,22 +469,23 @@ namespace EasyFFmpeg
         /// スライダーによる平均ビットレートの入力
         /// </summary>
         /// <remarks>
-        /// 入力は正数で1Mbps～300Mbpsの範囲<br/>
+        /// 入力は正数で0.1Mbps～35Mbpsの範囲<br/>
         /// 最大ビットレートが平均ビットレート以上となるように最大ビットレートを調整
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void AveBitrateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var bitrate = (int)AveBitrateSlider.Value;
-            Options.AveBitrate = bitrate;
-            if (Options.MaxBitrate < bitrate)
+            var mbitrate = (int)AveBitrateSlider.Value;
+            var kbitrate = mbitrate * 1000;
+            Options.AveBitrate = kbitrate;
+            if (Options.MaxBitrate < kbitrate)
             {
-                Options.MaxBitrate = bitrate;
-                MaxBitrateText.Text = bitrate.ToString();
-                MaxBitrateSlider.Value = bitrate;
+                Options.MaxBitrate = kbitrate;
+                MaxBitrateText.Text = mbitrate.ToString();
+                MaxBitrateSlider.Value = mbitrate;
             }
-            AveBitrateText.Text = bitrate.ToString();
+            AveBitrateText.Text = mbitrate.ToString();
             StatusLabel.Content = "";
         }
 
@@ -489,21 +493,23 @@ namespace EasyFFmpeg
         /// スライダーによる最大ビットレートの入力
         /// </summary>
         /// <remarks>
-        /// 入力は正数で1Mbps～300Mbpsの範囲<br/>
+        /// 入力は正数で0.1Mbps～35Mbpsの範囲<br/>
         /// ただし最大ビットレートが平均ビットレート以上
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MaxBitrateSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var bitrate = (int)MaxBitrateSlider.Value;
-            if (Options.AveBitrate > bitrate)
+            var mbitrate = (int)MaxBitrateSlider.Value;
+            var kbitrate = mbitrate * 1000;
+            if (Options.AveBitrate > kbitrate)
             {
-                bitrate = Options.AveBitrate;
-                MaxBitrateSlider.Value = bitrate;
+                kbitrate = Options.AveBitrate;
+                mbitrate = kbitrate / 1000;
+                MaxBitrateSlider.Value = mbitrate;
             }
-            Options.MaxBitrate = bitrate;
-            MaxBitrateText.Text = bitrate.ToString();
+            Options.MaxBitrate = kbitrate;
+            MaxBitrateText.Text = mbitrate.ToString();
             StatusLabel.Content = "";
         }
     }
