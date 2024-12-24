@@ -11,6 +11,9 @@ namespace EasyFFmpeg
     /// </summary>
     public class VideoOptions
     {
+        public const int DefaultAveBitrate = 1000;  // kbps
+        public const int DefaultMaxBitrate = 1000;  // kbps
+
         /// <value>拡張子とビデオのコーデックの辞書</value>
         private static readonly Dictionary<string, string> s_codecDic = new Dictionary<string, string>()
         {
@@ -87,9 +90,9 @@ namespace EasyFFmpeg
         /// <value>CBR指定</value>
         public bool SetBitrate { get; set; } = false;
         /// <value>平均ビットレート(kbps)</value>
-        public int AveBitrate { get; set; } = 1000;
+        public int AveBitrate { get; set; } = DefaultAveBitrate;
         /// <value>最大ビットレート(kbps)</value>
-        public int MaxBitrate { get; set; } = 1000;
+        public int MaxBitrate { get; set; } = DefaultMaxBitrate;
 
         /// <value>一定品質指定</value>
         public bool ConstantQuality { get; set; } = false;
@@ -113,8 +116,8 @@ namespace EasyFFmpeg
             Aspect = "";
             ConstantQuality = false;
             SetBitrate = false;
-            AveBitrate = 0;
-            MaxBitrate = 0;
+            AveBitrate = DefaultAveBitrate;
+            MaxBitrate = DefaultMaxBitrate;
         }
 
         public string CreateHWDecoderArgument()
@@ -196,7 +199,7 @@ namespace EasyFFmpeg
                 }
                 if (SetBitrate)
                 {
-                    Arguments += $"-b:v {AveBitrate}k -maxrate {MaxBitrate}k ";
+                    Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
                 }
             }
 
