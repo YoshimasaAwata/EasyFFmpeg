@@ -1,31 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>fileconv.ico</ApplicationIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows10.0.26100.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>fileconv.ico</ApplicationIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<Version>1.0.0.0</Version>
+		<Company>yoshia</Company>
+		<Authors>yoshia</Authors>
+		<Copyright>Copyright(c) 2024 Yoshimasa Awata</Copyright>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="fileconv.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="fileconv.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
-    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MahApps.Metro" Version="2.4.10" />
+		<PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+		<PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
+		<PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
