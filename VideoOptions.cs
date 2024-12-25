@@ -93,6 +93,8 @@ namespace EasyFFmpeg
         public int AveBitrate { get; set; } = DefaultAveBitrate;
         /// <value>最大ビットレート(kbps)</value>
         public int MaxBitrate { get; set; } = DefaultMaxBitrate;
+        ///<value>2パス?</value>
+        public bool TwoPass { get; set; } = false;
 
         /// <value>一定品質指定</value>
         public bool ConstantQuality { get; set; } = false;
@@ -118,6 +120,7 @@ namespace EasyFFmpeg
             SetBitrate = false;
             AveBitrate = DefaultAveBitrate;
             MaxBitrate = DefaultMaxBitrate;
+            TwoPass = false;
         }
 
         public string CreateHWDecoderArgument()
@@ -160,6 +163,67 @@ namespace EasyFFmpeg
             return doCopy;
         }
 
+        /// <summary>
+        /// 1パスのビデオ出力の引数を作成
+        /// </summary>
+        public void Create1PassArguments()
+        {
+            if (SpecifyEncoder && (Encoder != ""))
+            {
+                Arguments += $"-c:v {Encoder} ";
+            }
+            if (SpecifyFramerate && (Framerate != ""))
+            {
+                Arguments += $"-r {Framerate} ";
+            }
+            if (SpecifySize && (Size != ""))
+            {
+                Arguments += $"-s {Size} ";
+            }
+            if (SpecifyAspect && (Aspect != ""))
+            {
+                Arguments += $"-aspect {Aspect} ";
+            }
+            if (ConstantQuality && (s_qualitySettings.ContainsKey(Encoder)))
+            {
+                Arguments += s_qualitySettings[Encoder];
+            }
+            if (SetBitrate)
+            {
+                Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
+            }
+        }
+
+        /// <summary>
+        /// 2パスのビデオ出力の引数を作成
+        /// </summary>
+        public void Create2PassArguments()
+        {
+            if (SpecifyEncoder && (Encoder != ""))
+            {
+                Arguments += $"-c:v {Encoder} ";
+            }
+            if (SpecifyFramerate && (Framerate != ""))
+            {
+                Arguments += $"-r {Framerate} ";
+            }
+            if (SpecifySize && (Size != ""))
+            {
+                Arguments += $"-s {Size} ";
+            }
+            if (SpecifyAspect && (Aspect != ""))
+            {
+                Arguments += $"-aspect {Aspect} ";
+            }
+            if (ConstantQuality && (s_qualitySettings.ContainsKey(Encoder)))
+            {
+                Arguments += s_qualitySettings[Encoder];
+            }
+            if (SetBitrate)
+            {
+                Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
+            }
+        }
         /// <summary>
         /// ビデオ出力の引数を作成
         /// </summary>
