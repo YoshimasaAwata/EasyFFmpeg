@@ -320,6 +320,8 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void QualityDefaultRadio_Checked(object sender, RoutedEventArgs e)
         {
+            MaxBitrateCheckBox.IsEnabled = false;
+            TwoPassCheckBox.IsEnabled = false;
             AveBitrateDock.IsEnabled = false;
             MaxBitrateDock.IsEnabled = false;
             StatusLabel.Content = "";
@@ -338,9 +340,14 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void QualityBitrateRadio_Checked(object sender, RoutedEventArgs e)
         {
+            MaxBitrateCheckBox.IsEnabled = true;
+            TwoPassCheckBox.IsEnabled = true;
             AveBitrateDock.IsEnabled = true;
-            MaxBitrateDock.IsEnabled = true;
+            MaxBitrateDock.IsEnabled = Options.EnableMaxBitrate;
             StatusLabel.Content = "";
+
+            MaxBitrateCheckBox.IsChecked = Options.EnableMaxBitrate;
+            TwoPassCheckBox.IsChecked = Options.TwoPass;
 
             Options.ConstantQuality = false;
 
@@ -356,6 +363,8 @@ namespace EasyFFmpeg
         /// <param name="e"></param>
         private void QualityImageRadio_Checked(object sender, RoutedEventArgs e)
         {
+            MaxBitrateCheckBox.IsEnabled = false;
+            TwoPassCheckBox.IsEnabled = false;
             AveBitrateDock.IsEnabled = false;
             MaxBitrateDock.IsEnabled = false;
             StatusLabel.Content = "";
@@ -505,6 +514,48 @@ namespace EasyFFmpeg
             Options.MaxBitrate = bitrate;
             MaxBitrateText.Text = bitrate.ToString();
             StatusLabel.Content = "";
+        }
+
+        /// <summary>
+        /// Max Bitrateの操作を有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MaxBitrateCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            MaxBitrateDock.IsEnabled = true;
+            Options.EnableMaxBitrate = true;
+        }
+
+        /// <summary>
+        /// Max Bitrateの操作を無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MaxBitrateCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            MaxBitrateDock.IsEnabled = false;
+            Options.EnableMaxBitrate = false;
+        }
+
+        /// <summary>
+        /// 2Passエンコードを有効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TwoPassCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Options.TwoPass = true;
+        }
+
+        /// <summary>
+        /// 2Passエンコードを無効にする
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TwoPassCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Options.TwoPass = false;
         }
     }
 }

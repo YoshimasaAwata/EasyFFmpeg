@@ -32,6 +32,19 @@ namespace EasyFFmpeg
             Cancel,
         }
 
+        /// <summary>
+        /// ビデオのパス指定
+        /// </summary>
+        public enum VideoPass
+        {
+            /// <value>1パス</value>
+            OnePass,
+            /// <value>2パスファーストパス</value>
+            TwoPass1st,
+            /// <value>2パスセカンドパス</value>
+            TwoPass2nd,
+        }
+
         /// <value>ビデオの変換元および変換先のファイル名のリスト</value>
         public ObservableCollection<string> FileNameList { get; } = new ObservableCollection<string>();
         /// <value>エラー等のメッセージ</value>
@@ -56,12 +69,13 @@ namespace EasyFFmpeg
         public AudioOptions AudioOptions { get; set; }
         /// <value>追加のオプション</value>
         private string _additionalOptions = "";
-        public string AdditionalOptions { 
+        public string AdditionalOptions
+        {
             get => _additionalOptions;
             set
             {
                 _additionalOptions = value.Trim() + " ";
-            } 
+            }
         }
         /// <value>引数の履歴</value>
         public StringBuilder ArgumentsHistory { get; private set; } = new StringBuilder();
@@ -167,7 +181,7 @@ namespace EasyFFmpeg
             var firstFile = FileNameList[0];
             if (UseVideoCodec)
             {
-                args += VideoOptions.CreateArguments(firstFile, true);
+                args += VideoOptions.CreateArguments(firstFile, VideoPass.OnePass, true);
             }
             args += AudioOptions.CreateArguments(firstFile, true);
             args += $" -filter_complex \"concat=n={FileNameList.Count}:v=1:a=1\" ";
@@ -232,40 +246,41 @@ namespace EasyFFmpeg
         /// ファイル変換時のFFmpegの引数を作成
         /// </summary>
         /// <param name="file">変換元のファイル名</param>
+        /// <param name="pass">ビデオのパス指定</param>
         /// <returns>引数</returns>
-        protected string CreateArguments(string file)
+        protected string CreateArguments(string file, VideoPass pass = VideoPass.OnePass)
         {
             var args = "-hide_banner ";
             args += VideoOptions.CreateHWDecoderArgument();
             args += $"-i \"{file}\" ";
             if (UseVideoCodec)
             {
-                args += VideoOptions.CreateArguments(file);
+                args += VideoOptions.CreateArguments(file, pass);
             }
-            args += AudioOptions.CreateArguments(file);
-            args += AdditionalOptions;
-            args += $"{ToFileName(file)}";
-
+            if (pass == VideoPass.TwoPass1st)
+            {
+                args += $"-an ";
+                args += AdditionalOptions;
+                args += $"-f null -";
+            }
+            else
+            {
+                args += AudioOptions.CreateArguments(file);
+                args += AdditionalOptions;
+                args += $"{ToFileName(file)}";
+            }
             return args;
         }
 
         /// <summary>
-        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
+        /// 実際のファイル変換
         /// </summary>
-        /// <param name="index">変換する要素のインデックス</param>
-        /// <returns>処理結果</returns>
-        public async Task<Code> ConvertFiles(Int32 index)
+        /// <param name="file">変換元のファイル名</param>
+        /// <param name="info">プロセス情報</param>
+        /// <returns></returns>
+        protected async Task<Code> Convert(string file, ProcessStartInfo info)
         {
             Code result = Code.OK;
-            //            int fileCount = 0;
-            var file = FileNameList[index];
-
-            Message = "";
-
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.FileName = "ffmpeg";
-            info.Arguments = CreateArguments(file);
-            info.UseShellExecute = false;
 
             ArgumentsHistory.Append(info.Arguments + "\n");
 
@@ -296,6 +311,79 @@ namespace EasyFFmpeg
             {
                 Message = Path.GetFileName(file) + "の変換に失敗しました\n" + e.Message;
                 result = Code.NG;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 1Passのファイル変換
+        /// </summary>
+        /// <param name="file">変換元のファイル名</param>
+        /// <returns></returns>
+        protected async Task<Code> Convert1Pass(string file)
+        {
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffmpeg";
+            info.Arguments = CreateArguments(file);
+            info.UseShellExecute = false;
+
+            Code result = await Convert(file, info);
+
+            return result;
+        }
+
+        /// <summary>
+        /// 2Passのファイル変換
+        /// </summary>
+        /// <param name="file">変換元のファイル名</param>
+        /// <returns></returns>
+        protected async Task<Code> Convert2Pass(string file)
+        {
+            Code result = Code.OK;
+
+            // 1stPass
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "ffmpeg";
+            info.Arguments = CreateArguments(file, VideoPass.TwoPass1st);
+            info.UseShellExecute = false;
+
+            result = await Convert(file, info);
+
+            // 2ndPass
+            if (result == Code.OK)
+            {
+                info = new ProcessStartInfo();
+                info.FileName = "ffmpeg";
+                info.Arguments = CreateArguments(file, VideoPass.TwoPass2nd);
+                info.UseShellExecute = false;
+
+                result = await Convert(file, info);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// "FileNameList"にリストアップされた変換元ファイル名と変換先ファイル名を使いファイルを変換
+        /// </summary>
+        /// <param name="index">変換する要素のインデックス</param>
+        /// <returns>処理結果</returns>
+        public async Task<Code> ConvertFiles(Int32 index)
+        {
+            Code result = Code.OK;
+            //            int fileCount = 0;
+            var file = FileNameList[index];
+
+            Message = "";
+
+            if (VideoOptions.TwoPass)
+            {
+                result = await Convert2Pass(file);
+            }
+            else
+            {
+                result = await Convert1Pass(file);
             }
 
             return result;

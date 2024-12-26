@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,6 +96,8 @@ namespace EasyFFmpeg
         public int MaxBitrate { get; set; } = DefaultMaxBitrate;
         ///<value>2パス?</value>
         public bool TwoPass { get; set; } = false;
+        ///<value>最大ビットレートを有効化</value>
+        public bool EnableMaxBitrate { get; set; } = true;
 
         /// <value>一定品質指定</value>
         public bool ConstantQuality { get; set; } = false;
@@ -121,6 +124,7 @@ namespace EasyFFmpeg
             AveBitrate = DefaultAveBitrate;
             MaxBitrate = DefaultMaxBitrate;
             TwoPass = false;
+            EnableMaxBitrate = true;
         }
 
         public string CreateHWDecoderArgument()
@@ -148,6 +152,7 @@ namespace EasyFFmpeg
                 doCopy &= (!SpecifyAspect);
                 doCopy &= (!ConstantQuality);
                 doCopy &= (!SetBitrate);
+                doCopy &= (!TwoPass);
                 // アスペクト比とビットレートは設定値に関係なく指定した時点でコピー不可とする
 
                 if (doCopy)
@@ -164,75 +169,26 @@ namespace EasyFFmpeg
         }
 
         /// <summary>
-        /// 1パスのビデオ出力の引数を作成
-        /// </summary>
-        public void Create1PassArguments()
-        {
-            if (SpecifyEncoder && (Encoder != ""))
-            {
-                Arguments += $"-c:v {Encoder} ";
-            }
-            if (SpecifyFramerate && (Framerate != ""))
-            {
-                Arguments += $"-r {Framerate} ";
-            }
-            if (SpecifySize && (Size != ""))
-            {
-                Arguments += $"-s {Size} ";
-            }
-            if (SpecifyAspect && (Aspect != ""))
-            {
-                Arguments += $"-aspect {Aspect} ";
-            }
-            if (ConstantQuality && (s_qualitySettings.ContainsKey(Encoder)))
-            {
-                Arguments += s_qualitySettings[Encoder];
-            }
-            if (SetBitrate)
-            {
-                Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
-            }
-        }
-
-        /// <summary>
-        /// 2パスのビデオ出力の引数を作成
-        /// </summary>
-        public void Create2PassArguments()
-        {
-            if (SpecifyEncoder && (Encoder != ""))
-            {
-                Arguments += $"-c:v {Encoder} ";
-            }
-            if (SpecifyFramerate && (Framerate != ""))
-            {
-                Arguments += $"-r {Framerate} ";
-            }
-            if (SpecifySize && (Size != ""))
-            {
-                Arguments += $"-s {Size} ";
-            }
-            if (SpecifyAspect && (Aspect != ""))
-            {
-                Arguments += $"-aspect {Aspect} ";
-            }
-            if (ConstantQuality && (s_qualitySettings.ContainsKey(Encoder)))
-            {
-                Arguments += s_qualitySettings[Encoder];
-            }
-            if (SetBitrate)
-            {
-                Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
-            }
-        }
-        /// <summary>
-        /// ビデオ出力の引数を作成
+        /// 1Passビデオ出力の引数を作成
         /// </summary>
         /// <param name="file">入力ファイル名</param>
+        /// <param name="pass">ビデオのエンコードパス</param>
         /// <param name="notCopy">ビデオをコピーしない指定</param>
         /// <returns>ビデオ出力の引数</returns>
-        public string CreateArguments(string file, bool notCopy = false)
+        public string CreateArguments(string file, FileList.VideoPass pass = FileList.VideoPass.OnePass, bool notCopy = false)
         {
-            Arguments = "";
+            if (pass == FileList.VideoPass.OnePass)
+            {
+                Arguments = "";
+            }
+            else if (pass == FileList.VideoPass.TwoPass1st)
+            {
+                Arguments = $"-pass 1 ";
+            }
+            else
+            {
+                Arguments = $"-pass 2 ";
+            }
 
             bool rc = !notCopy;
             if (rc)
@@ -263,7 +219,11 @@ namespace EasyFFmpeg
                 }
                 if (SetBitrate)
                 {
-                    Arguments += $"-b:v {AveBitrate}k -maxrate:v {MaxBitrate}k ";
+                    Arguments += $"-b:v {AveBitrate}k ";
+                    if (EnableMaxBitrate)
+                    {
+                        Arguments += $"-maxrate:v {MaxBitrate}k ";
+                    }
                 }
             }
 

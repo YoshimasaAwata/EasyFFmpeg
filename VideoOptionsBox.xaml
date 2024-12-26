@@ -78,18 +78,30 @@
                                 <RadioButton x:Name="QualityImageRadio" Content="画質優先" GroupName="Quality" Margin="5,0,5,0" Checked="QualityImageRadio_Checked"/>
                                 <Label x:Name="StatusLabel" Margin="5,0,0,0" Foreground="Red"/>
                             </StackPanel>
-                            <DockPanel x:Name="AveBitrateDock" Margin="0,5,0,5" IsEnabled="False">
-                                <Label Content="平均ビットレート: " Margin="0,0,5,0"/>
-                                <TextBox x:Name="AveBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="AveBitrateText_TextChanged" />
-                                <Label Content="kbps" Margin="0,0,5,0" />
-                                <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" LargeChange="100" SmallChange="10" ValueChanged="AveBitrateSlider_ValueChanged" TickFrequency="10" IsSnapToTickEnabled="True"/>
-                            </DockPanel>
-                            <DockPanel x:Name="MaxBitrateDock" Margin="0,5,0,0" IsEnabled="False">
-                                <Label Content="最大ビットレート: " Margin="0,0,5,0"/>
-                                <TextBox x:Name="MaxBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="MaxBitrateText_TextChanged"/>
-                                <Label Content="kbps" Margin="0,0,5,0" />
-                                <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" LargeChange="100" SmallChange="10" ValueChanged="MaxBitrateSlider_ValueChanged" TickFrequency="10" IsSnapToTickEnabled="True"/>
-                            </DockPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <DockPanel x:Name="AveBitrateDock" IsEnabled="False" Margin="0,5,5,5">
+                                        <Label Content="平均ビットレート: " Margin="0,0,5,0"/>
+                                        <TextBox x:Name="AveBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="AveBitrateText_TextChanged" />
+                                        <Label Content="kbps" Margin="0,0,5,0" />
+                                        <Slider x:Name="AveBitrateSlider" Margin="5,0,0,0" LargeChange="100" SmallChange="10" ValueChanged="AveBitrateSlider_ValueChanged" TickFrequency="10" IsSnapToTickEnabled="True"/>
+                                    </DockPanel>
+                                    <DockPanel x:Name="MaxBitrateDock" IsEnabled="False" Margin="0,5,5,5">
+                                        <Label Content="最大ビットレート: " Margin="0,0,5,0"/>
+                                        <TextBox x:Name="MaxBitrateText" Width="80" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="BitrateText_PreviewTextInput" CommandManager.PreviewExecuted="BitrateText_PreviewExecuted" Margin="5,0,5,0" TextChanged="MaxBitrateText_TextChanged"/>
+                                        <Label Content="kbps" Margin="0,0,5,0" />
+                                        <Slider x:Name="MaxBitrateSlider" Margin="5,0,0,0" LargeChange="100" SmallChange="10" ValueChanged="MaxBitrateSlider_ValueChanged" TickFrequency="10" IsSnapToTickEnabled="True"/>
+                                    </DockPanel>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <CheckBox x:Name="TwoPassCheckBox" Content=":2Pass" FlowDirection="RightToLeft" IsEnabled="False" HorizontalContentAlignment="Stretch" Checked="TwoPassCheckBox_Checked" Unchecked="TwoPassCheckBox_Unchecked"/>
+                                    <CheckBox x:Name="MaxBitrateCheckBox" Content=":Enable Max Bitrate" FlowDirection="RightToLeft" IsEnabled="False" HorizontalContentAlignment="Stretch" IsChecked="True" Checked="MaxBitrateCheckBox_Checked" Unchecked="MaxBitrateCheckBox_Unchecked"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
